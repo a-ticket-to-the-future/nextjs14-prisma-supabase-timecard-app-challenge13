@@ -11,6 +11,7 @@ export async function POST(req:NextRequest,res:NextResponse) {
 
         const body = req.json()
         // const userId = body
+        console.log(body);
         const currentUser = await getCurrentUser();
         const userId = currentUser?.id
 

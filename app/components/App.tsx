@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import prisma from '../lib/prismaClient';
 import { User } from '../types/types';
 import { Timecard } from '../types/types';
@@ -18,6 +18,9 @@ const App =  (currentUser:User) => {
     const [users, setUsers] = useState([]);
     const [timecards, setTimecards] = useState([])
     const [workingState, setWorkingState] = useState(false)
+    const [userId, setUserId] = useState("");
+    const [savedStartedTime, setSavedStatedTime] = useState("")
+    const [startedData, setStartedData] = useState("")
     // const { supabase } = useSpabase();
 
     useEffect(() => {
@@ -48,40 +51,80 @@ const App =  (currentUser:User) => {
     },[])
 
     const timecardStart = async() => {
-        setWorkingState(true)
+        if(!workingState){
 
-        // const currentUser = await getCurrentUser()
-        if(currentUser){
-
-            const userId =  currentUser.id
-            const res = await fetch('/api/timecard/start',{
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json",
-                },
-                body:JSON.stringify({userId})
-            })
-            // console.log(res.json());
-            const data = await res.json()
-            console.log(data.startedTime.startedAt)
-            const savedStartedTime = data.startedTime.startedAt
-            console.log(savedStartedTime);
-            const convertedTime = moment(savedStartedTime)
-            // const startTime = convertedTime.add(9,"hours")
-            console.log(convertedTime.format('YYYY/MM/DD HH:mm:ss'));
-
+            setWorkingState(true)
+    
+            // const currentUser = await getCurrentUser()
+            if(currentUser){
+    
+                const userId =  currentUser.id
+                const res = await fetch('http://localhost:3000/api/timecard/start',{
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json",
+                    },
+                    body:JSON.stringify({userId})
+                })
+                // console.log(res.json());
+                const data = await res.json()
+                // console.log(data)
+                setStartedData(data)
+                console.log(data.startedTime.id)
+                setUserId(data.startedTime.id);
+                // console.log(data.startedTime.startedAt)
+                // setSavedStatedTime(data.startedTime.startedAt) 
+                // console.log(savedStartedTime);
+                const convertedTime = moment(data.startedTime.startedAt)
+                // const startTime = convertedTime.add(9,"hours")
+                console.log(convertedTime.format('YYYY/MM/DD HH:mm:ss'));
+                setSavedStatedTime(convertedTime.format('YYYY/MM/DD HH:mm:ss'))
+    
+            } else {
+                console.error('エラーです')
+            }
         } else {
-            console.error('エラーです')
+            alert('すでに開始ボタンが押されています')
         }
         
     }
 
-    const timeCardEnd = () => {
-        setWorkingState(false)
+    const timeCardEnd = async () => {
+        
+        // useCallback(() => {
+        //     setWorkingState(false)
+
+        // },[workingState])
+
+        if (workingState) {
+
+            setWorkingState(false)
+            console.log(userId)
+            console.log(startedData);
+            console.log(savedStartedTime);
+            // console.log(startedData)
+
+            // const userId = currentUser.id
+            const res = await fetch('http://localhost:3000/api/timecard/end',{
+                method:"PUT",
+                headers: {
+                    "Content-Type": "application/json",   
+                },
+                body:JSON.stringify({userId,savedStartedTime})
+            });
+            // console.log(res.body)
+            const data = await res.json();
+            console.log(data)
+        
+
+        } else {
+            
+            alert("開始ボタンが押されていません")
+        }
+
+        //ここらからは別
         // if(currentUser){
-        //     const userId = currentUser.id
-        //     const
-        // }
+        
     }
 
   return (
