@@ -1,26 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prismaClient";
 import getCurrentUser from '@/app/actions/getCurrentUser';
+import { date } from "zod";
 
 export async function POST(req:NextRequest,res:NextResponse) {
 
     try {
 
-        const currentUser = await getCurrentUser();
+        // const currentUser = await getCurrentUser();
 
-        if( currentUser) {
-        const startedTime = await prisma.timecard.update({
-            where : {
-                id: currentUser.id
-            },
+        const body = req.json()
+        // const userId = body
+        const currentUser = await getCurrentUser();
+        const userId = currentUser?.id
+
+        // if( {userId}) {
+        const startedTime = await prisma.timecard.create({
+            // where : {
+            //     id: currentUser.id
+            // },
             data: {
-                startedAt: new Date()
+                userId:userId,
+                startedAt: new Date(),
+                endedAt:null,
             },
         });
     
-
-        return NextResponse.json(startedTime);
-    }
+        console.log(startedTime)
+        return NextResponse.json({startedTime});
+    // }
     } catch (error) {
         console.log(error)
         return new NextResponse('Error',{status:500})

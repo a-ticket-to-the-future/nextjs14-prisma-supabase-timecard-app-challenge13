@@ -9,6 +9,11 @@ const nextConfig = {
         domains: ['lh3.googleusercontent.com',
                     'res.cloudinary.com'],
     },
+
+    // webpack: (config) => {
+    //     config.externals = [...config.externals, "bcrypt"];
+    //     return config;
+    //   },
     
 
 };

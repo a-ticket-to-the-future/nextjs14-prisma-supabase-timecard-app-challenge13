@@ -4,11 +4,14 @@ import React, { useEffect, useState } from 'react'
 import prisma from '../lib/prismaClient';
 import { User } from '../types/types';
 import { Timecard } from '../types/types';
+import getCurrentUser from '../actions/getCurrentUser';
+import axios from 'axios';
+// import { error } from 'console';
 
 
 
 
-const App =  () => {
+const App =  (currentUser:User) => {
 
     const [users, setUsers] = useState([]);
     const [timecards, setTimecards] = useState([])
@@ -42,8 +45,20 @@ const App =  () => {
         fetchTimecards()
     },[])
 
-    const timecardStart = () => {
+    const timecardStart = async() => {
         setWorkingState(true)
+
+        // const currentUser = await getCurrentUser()
+        if(currentUser){
+
+            const userId =  currentUser.id
+            const res = await fetch('/api/timecard/start',{
+                method:"POST",
+                body:JSON.stringify({userId})
+            })
+        } else {
+            console.error('エラーです')
+        }
     }
 
     const timeCardEnd = () => {

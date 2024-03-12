@@ -11,8 +11,8 @@ export interface User {
 export interface Timecard {
     id: number,
     userId: String,
-    startedAt: Date,
-    endedAt: Date,
+    startedAt: Date | null,
+    endedAt: Date | null,
     createdAt: Date,
     updatedAt: Date,
 }
