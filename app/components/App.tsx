@@ -6,6 +6,8 @@ import { User } from '../types/types';
 import { Timecard } from '../types/types';
 import getCurrentUser from '../actions/getCurrentUser';
 import axios from 'axios';
+import { object } from 'zod';
+import moment from 'moment';
 // import { error } from 'console';
 
 
@@ -54,15 +56,32 @@ const App =  (currentUser:User) => {
             const userId =  currentUser.id
             const res = await fetch('/api/timecard/start',{
                 method:"POST",
+                headers:{
+                    "Content-Type":"application/json",
+                },
                 body:JSON.stringify({userId})
             })
+            // console.log(res.json());
+            const data = await res.json()
+            console.log(data.startedTime.startedAt)
+            const savedStartedTime = data.startedTime.startedAt
+            console.log(savedStartedTime);
+            const convertedTime = moment(savedStartedTime)
+            // const startTime = convertedTime.add(9,"hours")
+            console.log(convertedTime.format('YYYY/MM/DD HH:mm:ss'));
+
         } else {
             console.error('エラーです')
         }
+        
     }
 
     const timeCardEnd = () => {
         setWorkingState(false)
+        // if(currentUser){
+        //     const userId = currentUser.id
+        //     const
+        // }
     }
 
   return (

@@ -26,7 +26,7 @@ export async function POST(req:NextRequest,res:NextResponse) {
             },
         });
     
-        console.log(startedTime)
+        // console.log(startedTime)
         return NextResponse.json({startedTime});
     // }
     } catch (error) {
