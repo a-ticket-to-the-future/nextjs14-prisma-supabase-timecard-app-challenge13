@@ -7,7 +7,8 @@ import { Timecard } from '../types/types';
 import getCurrentUser from '../actions/getCurrentUser';
 import axios from 'axios';
 import { object } from 'zod';
-import moment from 'moment';
+import moment, { utc } from 'moment';
+import momentTimezone from 'moment-timezone';
 // import { error } from 'console';
 
 
@@ -20,6 +21,9 @@ const App =  (currentUser:User) => {
     const [workingState, setWorkingState] = useState(false)
     const [userId, setUserId] = useState("");
     const [savedStartedTime, setSavedStatedTime] = useState("")
+    const [savedEndedTime, setSavedEndedTime] = useState("")
+    const [saveStartTime,setSaveStartTime]= useState("")
+    const [saveEndTime,setSaveEndTime] = useState("")
     const [startedData, setStartedData] = useState("")
     // const { supabase } = useSpabase();
 
@@ -75,10 +79,13 @@ const App =  (currentUser:User) => {
                 // console.log(data.startedTime.startedAt)
                 // setSavedStatedTime(data.startedTime.startedAt) 
                 // console.log(savedStartedTime);
-                const convertedTime = moment(data.startedTime.startedAt)
+                const convertedStartTime = moment(data.startedTime.startedAt)
+                // setSaveStartTime(convertedStartTime)
+                // console.log(convertedStartTime)
+                setSaveStartTime(data.startedTime.startedAt)
                 // const startTime = convertedTime.add(9,"hours")
-                console.log(convertedTime.format('YYYY/MM/DD HH:mm:ss'));
-                setSavedStatedTime(convertedTime.format('YYYY/MM/DD HH:mm:ss'))
+                console.log(convertedStartTime.format('YYYY/MM/DD HH:mm:ss'));
+                setSavedStatedTime(convertedStartTime.format('YYYY/MM/DD HH:mm:ss'))
     
             } else {
                 console.error('エラーです')
@@ -99,9 +106,9 @@ const App =  (currentUser:User) => {
         if (workingState) {
 
             setWorkingState(false)
-            console.log(userId)
-            console.log(startedData);
-            console.log(savedStartedTime);
+            // console.log(userId)
+            // console.log(startedData);
+            // console.log(savedStartedTime);
             // console.log(startedData)
 
             // const userId = currentUser.id
@@ -114,18 +121,52 @@ const App =  (currentUser:User) => {
             });
             // console.log(res.body)
             const data = await res.json();
-            console.log(data)
-        
+            // console.log(data)
+            // console.log(data.endedTime.endedAt)
+            const convertedEndTime = moment(data.endedTime.endedAt)
+            setSaveEndTime(data.endedTime.endedAt);
+            console.log(convertedEndTime.format('YYYY/MM/DD HH:mm:ss'));
+            setSavedEndedTime(convertedEndTime.format('YYYY/MM/DD HH:mm:ss'))
 
+            //始まりと終わりの差を計測する
+            
+            const statedAt = moment(saveStartTime)
+            
+    
+            const diff2 = convertedEndTime.diff(statedAt,'milliseconds')
+            console.log(diff2)
+            // console.log(moment(diff2).add(-9,'hours').format('hh:mm:ss'))
+            // const diffedTime = moment.tz(diff2,'Asia/Tokyo').format('hh:mm:ss')
+            // console.log(moment.tz(diff, 'Asia/Tokyo').format('hh:mm:ss'))
+            // dif2 = moment.tz()
+            // console.log(diffedTime)
+            const date= new Date(diff2)
+            const hours = date.getUTCHours()
+            const minutes = date.getUTCMinutes()
+            const seconds = date.getSeconds()
+
+            const formattedTime = `${hours}:${minutes}:${seconds}`
+            console.log(formattedTime);
+            
         } else {
             
             alert("開始ボタンが押されていません")
         }
-
+        
         //ここらからは別
         // if(currentUser){
         
     }
+
+    
+    
+    // if(!statedAt || !endedAt){
+        
+    //     console.log('計測中')
+        
+    // } else {
+        
+    // }
 
   return (
     <div className=' flex flex-col'>
