@@ -36,6 +36,7 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
     const [saveEndTime,setSaveEndTime] = useState("")
     const [startedData, setStartedData] = useState("")
     const [measuredTime, setMeasuredTime] = useState("")
+    const [lists, setLists] = useState("")
     // const { supabase } = useSpabase();
 
     useEffect(() => {
@@ -180,6 +181,17 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
     // } else {
         
     // }
+
+    const handleList = async () => {
+        const response = await fetch('http://localhost:3000/api/timecard/list',{
+            cache:"no-store"
+        })
+        const listData = await response.json()
+        console.log(listData)
+        setLists(listData)
+        // return lists
+
+    }
     
 
   return (
@@ -226,8 +238,20 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
                 <div className='  border-2 border-slate-50 rounded-lg px-5 pt-3'>計測値</div>
                 <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >合計時間</div>
 
-
+                
             </div> */}
+                <div className=' border-2 border-blue-600 w-[1000px] h-auto p-5'>
+
+                    <div>その日の合計時間を表示させるために一覧表示させてみる</div>
+                    <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleList}>ボタン</div>
+                    {/* <ul className=' mt-10' >
+                        {lists.map((list:Timecard) => (
+                            <li key={list.id}>
+                                 {list.startedAt}
+                            </li>
+                        ))}
+                    </ul> */}
+                </div>
         </div>
 
         <StopWatch currentUser = {currentUser}  />
