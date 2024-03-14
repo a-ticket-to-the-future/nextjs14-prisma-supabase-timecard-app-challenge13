@@ -5,9 +5,18 @@ import App from "./components/App";
 import getCurrentUser from "./actions/getCurrentUser";
 import { User } from "./types/types";
 
+// export type homeProps = {
+//   currentUser : User ,
+//   id:string | null
+//     name:string | null
+//     email:string | null
+//     createdAt:Date | null
+//     updatedAt:Date | null
+//     hashedPassword:string | null
+//     children: React.ReactNode
+// }
 
-
-export default async function Home() {
+const Home = async() => {
 
   const currentUser = await getCurrentUser()
 
@@ -17,7 +26,7 @@ export default async function Home() {
 
         {currentUser ? <div>
                           <div className=" text-center">認証中</div>
-                                <App />
+                                <App currentUser={currentUser} />
                           </div> 
                           : <div>未承認</div>}
       
@@ -25,3 +34,5 @@ export default async function Home() {
     </main>
   );
 }
+
+export default Home

@@ -1,20 +1,20 @@
 export interface User {
-    id: number,
-    userName: String,
-    email: String, 
-    password: String,
-    createdAt: Date,
-    updatedAt: Date,
+    id: string | null ,
+    name: string | null,
+    email: string | null, 
+    hashedPassword: string | null,
+    createdAt: Date | null,
+    updatedAt: Date | null,
 } 
 
 
 export interface Timecard {
-    id: number,
-    userId: String,
+    id: string | null,
+    userId: string | null,
     startedAt: Date | null,
     endedAt: Date | null,
-    createdAt: Date,
-    updatedAt: Date,
+    createdAt: Date | null,
+    updatedAt: Date | null,
 }
 
 

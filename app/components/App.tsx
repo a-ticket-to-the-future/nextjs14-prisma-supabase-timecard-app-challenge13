@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { JSXElementConstructor, ReactNode, useCallback, useEffect, useState } from 'react'
 import prisma from '../lib/prismaClient';
 import { User } from '../types/types';
 import { Timecard } from '../types/types';
@@ -13,9 +13,18 @@ import StopWatch from './stopwatch/StopWatch';
 // import { error } from 'console';
 
 
+export type AppProps = {
+    currentUser: User | null,
+    // id:string | null 
+    // name:string | null
+    // email:string | null
+    // createdAt:Date | null
+    // updatedAt:Date | null
+    // hashedPassword:string | null
+    // children: React.ReactNode
+}
 
-
-const App =  (currentUser:User) => {
+const App:React.FC<AppProps> =  ({currentUser}) => {
 
     const [users, setUsers] = useState([]);
     const [timecards, setTimecards] = useState([])
@@ -26,9 +35,11 @@ const App =  (currentUser:User) => {
     const [saveStartTime,setSaveStartTime]= useState("")
     const [saveEndTime,setSaveEndTime] = useState("")
     const [startedData, setStartedData] = useState("")
+    const [measuredTime, setMeasuredTime] = useState("")
     // const { supabase } = useSpabase();
 
     useEffect(() => {
+        
         const fetchUsers = async () => {
             const response = await fetch("http://localhost:3000/api/users",{
                 cache:'no-store',
@@ -148,6 +159,7 @@ const App =  (currentUser:User) => {
 
             const formattedTime = `${hours}:${minutes}:${seconds}`
             console.log(formattedTime);
+            setMeasuredTime(formattedTime)
             
         } else {
             
@@ -175,21 +187,28 @@ const App =  (currentUser:User) => {
         <h1 className=' text-4xl bg-green-400 text-slate-50 rounded-md font-bold px-[50px] py-[5px] text-center'>
             タイムカード
         </h1>
-        <div className=' flex flex-col mt-[100px] gap-5'>
-            <div className=' bg-sky-400 w-[800px] h-[60px] flex gap-20 justify-center ml-[130px] '>
-                <div className='  border-2 border-slate-50 rounded-lg bg-gray-300 my-1 px-5 pt-3 text-center hover:scale-105 active:scale-95 cursor-pointer' onClick={timecardStart} >開始</div>
-                <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-3 bg-red-500 hover:scale-105 active:scale-95 cursor-pointer' onClick={timeCardEnd} >停止</div>
+        <div className=' flex flex-col mt-[60px] gap-5'>
+            <div className=' bg-sky-400 w-[1000px] h-[80px] flex gap-20 justify-center  '>
+                <div className='  border-2 border-slate-50 rounded-lg bg-gray-300 my-1 px-5 pt-6 text-center hover:scale-105 active:scale-95 cursor-pointer' onClick={timecardStart} >開始</div>
+                <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-6 bg-red-500 hover:scale-105 active:scale-95 cursor-pointer' onClick={timeCardEnd} >停止</div>
 
                 { workingState ? (
 
-                    <div className=' border-2 border-black  my-1 rounded-lg px-5 pt-3 text-red-500 font-bold'  >仕事中</div>
+                    <div className=' border-2 border-black  my-1 rounded-lg px-5 pt-6 text-red-500 font-bold'  >仕事中</div>
                 ):
                 (
-                    <div className=' border-2 border-black  my-1 rounded-lg px-5 pt-3 text-blue-600 font-bold'  >準備中</div>
+                    <div className=' border-2 border-black  my-1 rounded-lg px-5 pt-6 text-blue-600 font-bold'  >準備中</div>
                     
                 )}
-                <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-3 '>経過時間</div>
-                <div className=' border-2 border-black text-slate-50 my-1 rounded-lg px-5 pt-3'  >合計時間</div>
+                <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-3 text-wrap '>
+                    <div>経過時間</div>
+                    <div className=' text-center'>{measuredTime}</div>
+                </div>
+                <div className=' border-2 border-black text-slate-50 my-1 rounded-lg px-5 pt-3'  >
+                    <div>合計時間</div>
+                    <div className=' text-center'>{measuredTime}</div>
+                    
+                </div>
 
 
             </div>
@@ -211,7 +230,7 @@ const App =  (currentUser:User) => {
             </div> */}
         </div>
 
-        <StopWatch  />
+        <StopWatch currentUser = {currentUser}  />
         
     </div>
   )
