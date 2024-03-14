@@ -9,6 +9,7 @@ import axios from 'axios';
 import { object } from 'zod';
 import moment, { utc } from 'moment';
 import momentTimezone from 'moment-timezone';
+import StopWatch from './stopwatch/StopWatch';
 // import { error } from 'console';
 
 
@@ -167,14 +168,15 @@ const App =  (currentUser:User) => {
     // } else {
         
     // }
+    
 
   return (
     <div className=' flex flex-col'>
         <h1 className=' text-4xl bg-green-400 text-slate-50 rounded-md font-bold px-[50px] py-[5px] text-center'>
             タイムカード
         </h1>
-        <div className=' flex flex-col mt-[60px] gap-5'>
-            <div className=' bg-sky-400 w-[800px] h-[60px] flex gap-20 justify-center '>
+        <div className=' flex flex-col mt-[100px] gap-5'>
+            <div className=' bg-sky-400 w-[800px] h-[60px] flex gap-20 justify-center ml-[130px] '>
                 <div className='  border-2 border-slate-50 rounded-lg bg-gray-300 my-1 px-5 pt-3 text-center hover:scale-105 active:scale-95 cursor-pointer' onClick={timecardStart} >開始</div>
                 <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-3 bg-red-500 hover:scale-105 active:scale-95 cursor-pointer' onClick={timeCardEnd} >停止</div>
 
@@ -208,6 +210,9 @@ const App =  (currentUser:User) => {
 
             </div> */}
         </div>
+
+        <StopWatch  />
+        
     </div>
   )
 }
