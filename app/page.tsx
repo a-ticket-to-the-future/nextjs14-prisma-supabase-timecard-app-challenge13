@@ -3,6 +3,7 @@
 import Image from "next/image";
 import App from "./components/App";
 import getCurrentUser from "./actions/getCurrentUser";
+import { User } from "./types/types";
 
 
 

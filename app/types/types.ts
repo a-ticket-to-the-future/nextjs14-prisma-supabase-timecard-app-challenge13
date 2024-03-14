@@ -5,7 +5,7 @@ export interface User {
     password: String,
     createdAt: Date,
     updatedAt: Date,
-}
+} 
 
 
 export interface Timecard {
