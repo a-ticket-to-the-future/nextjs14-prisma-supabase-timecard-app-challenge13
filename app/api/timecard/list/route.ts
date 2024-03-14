@@ -8,17 +8,20 @@ export async function GET(req: NextRequest, res: NextResponse){
 
         const currentUser = await getCurrentUser()
 
-        if (currentUser) {
+        // if (currentUser) {
 
             const timecardData = await prisma.timecard.findMany({
                 where:{ 
-                    id: currentUser?.id
+                    startedAt: {
+                        gte: new Date('2024-03-14 00:00:00'),
+                        lte: new Date('2024-03-14 23:59:59'),
+                    },
                  },
-                include: {user:true}
+                // include: {user:true}
             })
-
+            
             return NextResponse.json(timecardData)
-        }
+        // }
 
     } catch (error) {
         console.log(error)
