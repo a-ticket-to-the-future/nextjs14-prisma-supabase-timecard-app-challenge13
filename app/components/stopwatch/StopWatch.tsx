@@ -3,7 +3,18 @@
 import { User } from '@/app/types/types';
 import React, { useEffect, useState } from 'react'
 
-const StopWatch = () => {
+export type stopWatchProps ={
+    currentUser: User | null
+    // id:string | null 
+    // name:string | null
+    // email:string | null
+    // createdAt:Date | null
+    // updatedAt:Date | null
+    // hashedPassword:string | null
+    // children: React.ReactNode
+}
+
+const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
 
     const [users, setUsers] = useState([]);
     const [timecards, setTimecards] = useState([])
@@ -20,8 +31,8 @@ const StopWatch = () => {
 
     useEffect(()=> {
 
-        let interval;
-
+        let interval:any;
+        console.log(interval)
         if(isStarted) {
             interval = setInterval(() => {
                 setElapsedTime((prevElapsedTime) => prevElapsedTime + 100)
@@ -29,7 +40,7 @@ const StopWatch = () => {
         } else {
             clearInterval(interval)
         }
-        return clearInterval(interval)
+        return () => clearInterval(interval)
 
     },[isStarted])
 
@@ -43,44 +54,62 @@ const StopWatch = () => {
     }
 
     const handleReset = async () => {
-
+        setElapsedTime(0)
     }
 
-  return (
-    <div className=' flex flex-col mt-[160px] gap-5'>
-            <div className=' bg-yellow-300 w-[1000px] h-[60px] flex gap-20 justify-center '>
-                <div className='  border-2 border-slate-50 rounded-lg bg-gray-300 my-1 px-5 pt-3 text-center hover:scale-105 active:scale-95 cursor-pointer' onClick={handleStart} >スタート</div>
-                <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-3 bg-red-500 hover:scale-105 active:scale-95 cursor-pointer' onClick={handleStop} >ストップ</div>
+    const formattedTime = () => {
+        const hours = Math.floor(elapsedTime / 3600000)
+        const minutes  = Math.floor((elapsedTime % 3600000) / 60000)
+        const seconds = Math.floor((elapsedTime % 3600000) % 60000 / 1000)
 
-                { isStarted ? (
+        return `${hours}時間${minutes}分${seconds}秒`
+    }
 
-                    <div className=' border-2 border-black  my-1 rounded-lg px-5 pt-3 text-red-500 font-bold'  >計測中</div>
-                ):
-                (
-                    <div className=' border-2 border-black  my-1 rounded-lg px-5 pt-3 text-blue-600 font-bold'   >停止中</div>
-                    
-                )}
-                <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-3 '>経過時間</div>
-                <div className=' border-2 border-black text-black my-1 rounded-lg px-5 pt-3' onClick={handleReset} >リセット</div>
+  return ( 
 
+        <div className=' flex flex-col mt-[160px]'>
+            <h1 className=' text-4xl bg-pink-400 text-slate-50 rounded-md font-bold px-[50px] py-[5px] text-center'>
+                ストップウォッチ
+            </h1>
+                <div className=' flex flex-col mt-[60px] gap-5'>
+                        <div className=' bg-yellow-300 w-[1000px] h-[60px] flex gap-20 justify-center '>
+                            <div className='  border-2 border-slate-50 rounded-lg bg-gray-300 my-1 px-5 pt-3 text-center hover:scale-105 active:scale-95 cursor-pointer' onClick={handleStart} >スタート</div>
+                            <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-3 bg-red-500 hover:scale-105 active:scale-95 cursor-pointer' onClick={handleStop} >ストップ</div>
 
-            </div>
-            {/* <div className=' bg-sky-400 w-[800px] h-[50px] flex gap-20 justify-center '>
-                <div className='  border-2 border-slate-50 rounded-lg px-5 pt-3'>ボタン</div>
-                <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >状態</div>
-                <div className='  border-2 border-slate-50 rounded-lg px-5 pt-3'>計測値</div>
-                <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >合計時間</div>
+                            { currentUser && isStarted ? (
+                            
+                                <div className=' border-2 border-black  my-1 rounded-lg px-5 pt-3 text-red-500 font-bold'  >計測中</div>
+                            ):
+                            (
+                                <div className=' border-2 border-black  my-1 rounded-lg px-5 pt-3 text-blue-600 font-bold'   >停止中</div>
 
+                            )}
+                            <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-3 '>経過時間: {formattedTime()}</div>
+                            <div className=' border-2 border-black text-black my-1 rounded-lg px-5 pt-3 hover:scale-105 active:scale-95 cursor-pointer' onClick={handleReset} >リセット</div>
+                            
+                            
+                        </div>
 
-            </div>
-            <div className=' bg-sky-400 w-[800px] h-[50px] flex gap-20 justify-center '>
-                <div className='  border-2 border-slate-50 rounded-lg px-5 pt-3'>ボタン</div>
-                <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >状態</div>
-                <div className='  border-2 border-slate-50 rounded-lg px-5 pt-3'>計測値</div>
-                <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >合計時間</div>
-
-
-            </div> */}
+                        <div className=' mt-[60px] border bg-orange-400 text-slate-50 w-[200px] h-[50px] text-center pt-3 font-bold rounded-md hover:scale-105 active:scale-95 cursor-pointer s border-gray-400 '>
+                            計測した時間を保存する
+                        </div>
+                        {/* <div className=' bg-sky-400 w-[800px] h-[50px] flex gap-20 justify-center '>
+                            <div className='  border-2 border-slate-50 rounded-lg px-5 pt-3'>ボタン</div>
+                            <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >状態</div>
+                            <div className='  border-2 border-slate-50 rounded-lg px-5 pt-3'>計測値</div>
+                            <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >合計時間</div>
+                            
+                            
+                        </div>
+                        <div className=' bg-sky-400 w-[800px] h-[50px] flex gap-20 justify-center '>
+                            <div className='  border-2 border-slate-50 rounded-lg px-5 pt-3'>ボタン</div>
+                            <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >状態</div>
+                            <div className='  border-2 border-slate-50 rounded-lg px-5 pt-3'>計測値</div>
+                            <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >合計時間</div>
+                            
+                            
+                        </div> */}
+                </div>
         </div>
   )
 }
