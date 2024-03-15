@@ -248,10 +248,11 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
                         {lists.map((list) => (
                             <div>
                                 <li key={list.id} className='mt-5'>
-                                     開始時間:{list.startedAt}
+                                     {/* 開始時間:{list.startedAt} */}
+                                     開始時間:{moment(list.startedAt).format('YYYY-MM-DD HH:mm:ss')}
                                 </li>
                                 <li  className=''>
-                                    停止時間{list.endedAt}
+                                    停止時間:{moment(list.endedAt).format('YYYY-MM-DD HH:mm:ss')}
                                 </li>
                             </div>
                         ))}
