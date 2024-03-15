@@ -246,8 +246,8 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
                     <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleList}>ボタン</div>
                     <ul className=' mt-10' >
                         {lists.map((list) => (
-                            <div>
-                                <li key={list.id} className='mt-5'>
+                            <div key={list.id}>
+                                <li  className='mt-5'>
                                      {/* 開始時間:{list.startedAt} */}
                                      開始時間:{moment(list.startedAt).format('YYYY-MM-DD HH:mm:ss')}
                                 </li>
