@@ -26,7 +26,7 @@ model User {
   accounts          Account[]
 
   //　勤務時間
-  timecards   Timecard[]
+  timecards         Timecard[]
 }
 
 model Timecard {
