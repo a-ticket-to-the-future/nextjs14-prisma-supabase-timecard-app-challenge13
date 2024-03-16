@@ -15,6 +15,8 @@ export interface Timecard {
     endedAt: Date | null,
     createdAt: Date | null,
     updatedAt: Date | null,
+    subTotal: string | null,
+    total: Date | null
 }
 
 

@@ -36,7 +36,7 @@ model Timecard {
   endedAt     DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  subtotal    DateTime?
+  subTotal    String?
   total       DateTime?
 
   user        User?      @relation(fields: [userId], references: [id])

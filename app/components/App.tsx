@@ -10,6 +10,8 @@ import { object } from 'zod';
 import moment, { utc } from 'moment';
 import momentTimezone from 'moment-timezone';
 import StopWatch from './stopwatch/StopWatch';
+// import DiffedSubTotal from '../actions/diffedSubTotal/DiffedSubTotal';
+import { list } from 'postcss';
 // import { error } from 'console';
 
 
@@ -37,6 +39,7 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
     const [startedData, setStartedData] = useState("")
     const [measuredTime, setMeasuredTime] = useState("")
     const [lists, setLists] = useState<Timecard[]>([])
+    const [subTotal, setSubTotal] = useState("")
     // const { supabase } = useSpabase();
 
     useEffect(() => {
@@ -145,7 +148,6 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
             
             const statedAt = moment(saveStartTime)
             
-    
             const diff2 = convertedEndTime.diff(statedAt,'milliseconds')
             console.log(diff2)
             // console.log(moment(diff2).add(-9,'hours').format('hh:mm:ss'))
@@ -160,7 +162,24 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
 
             const formattedTime = `${hours}:${minutes}:${seconds}`
             console.log(formattedTime);
-            setMeasuredTime(formattedTime)
+            setMeasuredTime(formattedTime);
+
+            const res2 = await fetch('http://localhost:3000/api/timecard/subTotal',{
+                method:"PUT",
+                headers: {
+                    "Content-Type":"application/json",
+                },
+                body:JSON.stringify({userId,formattedTime})
+
+            })
+
+            const data2 = await res2.json()
+            // console.log(data2)
+
+            const receivedSubTotal = data2.subTotal.subTotal
+            console.log(receivedSubTotal);
+            setSubTotal(receivedSubTotal);
+
             
         } else {
             
@@ -183,14 +202,63 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
     // }
 
     const handleList = async () => {
-        const response = await fetch('http://localhost:3000/api/timecard/list',{
+        const response = await fetch('http://localhost:3000/api/timecard/lists',{
             cache:"no-store"
         })
         const listData = await response.json()
         console.log(listData)
         setLists(listData)
+
+
+        // const slicedData = listData.slice(0, listData.length);
+        // console.log(slicedData)
+
+
+        // const slicedData = [];
+        // for (let i = 0; i < listData.length; i++) {
+        //   slicedData.push(listData[i]);
+        // }
+
+        // console.log(slicedData);
+
         // return lists
 
+        // const convertedEndTime = moment(data.endedTime.endedAt)
+        // const convertedEndTime2 = moment(listData)
+        // const subtitle = convertedEndTime.diff(statedAt,'milliseconds')
+        
+
+    }
+
+    const handleSubTotalView = async () => {
+
+        
+        // const subTotal = await fetch ('http://localhost:3000/api/timecard/list',{
+        //     cache:"no-store"
+        // })
+
+
+        //     const date = new Date()
+
+            
+        //     const hours =  date.getUTCHours()
+        //     const minutes = date.getUTCMinutes()
+        //     const seconds = date.getSeconds()
+
+        //     const formattedTime = `${hours}:${minutes}:${seconds}`
+        
+        // const subTotal = "ここに計算式"
+        
+        // const subTotalResponse = await fetch('http://localhost:3000/api/timecard/subTotal',{
+        //     method:"PUT",
+        //     headers :{
+        //         "Content-Type":"application/json",
+        //     },
+        //     body:JSON.stringify({subTotal})
+        // })
+        // const subTotalData = await subTotalResponse.json()
+        // console.log(subTotalData)
+        
     }
     
 
@@ -253,6 +321,16 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
                                 </li>
                                 <li  className=''>
                                     停止時間:{moment(list.endedAt).format('YYYY-MM-DD HH:mm:ss')}
+                                </li>
+                    
+                                {/* <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleSubTotalView}>小計を確認</div> */}
+
+                                <li  className=''>
+                                    {/* 小計:{moment(list.endedAt).diff(list.startedAt,"milliseconds") } */}
+                                    小計:{list.subTotal }
+                                    {/* {DiffedSubTotal(moment(list.endedAt).diff(list.startedAt,"milliseconds"))} */}
+                                    {/* 小計:{moment(list.subTotal).format('YYYY-MM-DD HH:mm:ss')} */}
+                                    <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleSubTotalView}>小計を確認</div>
                                 </li>
                             </div>
                         ))}
