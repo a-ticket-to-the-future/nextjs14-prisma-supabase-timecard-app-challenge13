@@ -27,6 +27,9 @@ model User {
 
   //　勤務時間
   timecards         Timecard[]
+
+  //　ストップウォッチ
+  Stopwatches       Stopwatch[]
 }
 
 model Timecard {
@@ -60,3 +63,21 @@ model Account {
 
   @@unique([provider, providerAccountId])
 }
+
+
+//　ストップウォッチ
+
+model Stopwatch {
+  id                  String    @id @default(uuid())
+  userId              String?
+  startedAt           DateTime?
+  hour                Int
+  minutes             Int
+  seconds             Int
+  createdAt           DateTime
+  updatedAt           DateTime
+
+  user                User?      @relation(fields: [userId], references: [id])
+
+}
+

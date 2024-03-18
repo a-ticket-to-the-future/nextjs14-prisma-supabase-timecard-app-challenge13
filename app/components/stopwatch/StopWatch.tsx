@@ -29,9 +29,19 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
     const [elapsedTime, setElapsedTime] = useState(0);
 
 
+    // type interval = {
+    //     number,
+        
+
+    // }
+
+    // type interval = number | undefined | unknown | null;
+
     useEffect(()=> {
 
-        let interval:any;
+
+
+        let interval : any //interval;
         console.log(interval)
         if(isStarted) {
             interval = setInterval(() => {
