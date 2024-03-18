@@ -281,7 +281,7 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
                     
                 )}
                 <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-3 text-wrap '>
-                    <div>経過時間</div>
+                    <div>計測時間</div>
                     <div className=' text-center'>{measuredTime}</div>
                 </div>
                 <div className=' border-2 border-black text-slate-50 my-1 rounded-lg px-5 pt-3'  >
