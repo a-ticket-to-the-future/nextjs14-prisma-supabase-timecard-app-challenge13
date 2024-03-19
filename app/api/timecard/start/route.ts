@@ -9,11 +9,11 @@ export async function POST(req:NextRequest,res:NextResponse) {
 
         // const currentUser = await getCurrentUser();
 
-        const body = req.json()
+        const {userId} = await req.json()
         // const userId = body
-        console.log(body);
-        const currentUser = await getCurrentUser();
-        const userId = currentUser?.id
+        console.log(userId);
+        // const currentUser = await getCurrentUser();
+        // const userId = currentUser?.id
 
         // if( {userId}) {
         const startedTime = await prisma.timecard.create({
