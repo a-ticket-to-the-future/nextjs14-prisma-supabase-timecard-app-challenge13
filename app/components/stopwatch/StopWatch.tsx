@@ -42,7 +42,7 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
 
 
         let interval : any //interval;
-        console.log(interval)
+        // console.log(interval)
         if(isStarted) {
             interval = setInterval(() => {
                 setElapsedTime((prevElapsedTime) => prevElapsedTime + 100)
@@ -57,6 +57,14 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
 
     const handleStart = async () => {
         setIsStarted(true)
+
+        const stopWatchStartedRes = await fetch('http://localhost:3000/api/timecard/stopWatchStarted',{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+            body:JSON.stringify({userId})
+            }
+        })
     }
 
     const handleStop = async () => {
