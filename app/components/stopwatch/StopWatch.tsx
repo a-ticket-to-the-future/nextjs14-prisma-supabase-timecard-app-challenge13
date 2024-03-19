@@ -19,7 +19,7 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
     const [users, setUsers] = useState([]);
     const [timecards, setTimecards] = useState([])
     const [workingState, setWorkingState] = useState(false)
-    const [userId, setUserId] = useState("");
+    // const [userId, setUserId] = useState("");
     const [savedStartedTime, setSavedStatedTime] = useState("")
     const [savedEndedTime, setSavedEndedTime] = useState("")
     const [saveStartTime,setSaveStartTime]= useState("")
@@ -56,15 +56,31 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
 
 
     const handleStart = async () => {
-        setIsStarted(true)
+        if(!isStarted){
 
-        const stopWatchStartedRes = await fetch('http://localhost:3000/api/timecard/stopWatchStarted',{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json",
-            body:JSON.stringify({userId})
+            setIsStarted(true)
+
+            if (currentUser) {
+
+                const userId = currentUser?.id
+        
+                const stopWatchStartedRes = await fetch('http://localhost:3000/api/timecard/stopWatchStarted',{
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json",
+                    },
+                    body:JSON.stringify({userId})
+                })
+        
+                const res = await stopWatchStartedRes.json()
+                console.log(res);
+            } else {
+                console.log('error');
             }
-        })
+    
+        } else {
+            alert('すでに開始ボタンが押されています');
+        }
     }
 
     const handleStop = async () => {

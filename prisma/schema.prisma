@@ -71,9 +71,6 @@ model Stopwatch {
   id                  String    @id @default(uuid())
   userId              String?
   startedAt           DateTime?
-  hour                Int
-  minutes             Int
-  seconds             Int
   createdAt           DateTime
   updatedAt           DateTime
 
