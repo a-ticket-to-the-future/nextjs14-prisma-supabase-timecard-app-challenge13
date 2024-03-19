@@ -57,12 +57,12 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
 
     const handleStart = async () => {
         if(!isStarted){
-
             setIsStarted(true)
+
 
             if (currentUser) {
 
-                const userId = currentUser?.id
+                const userId = currentUser.id
         
                 const stopWatchStartedRes = await fetch('http://localhost:3000/api/timecard/stopWatchStarted',{
                     method:"POST",
@@ -78,7 +78,7 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
                 console.log('error');
             }
     
-        } else {
+        } else  {
             alert('すでに開始ボタンが押されています');
         }
     }
