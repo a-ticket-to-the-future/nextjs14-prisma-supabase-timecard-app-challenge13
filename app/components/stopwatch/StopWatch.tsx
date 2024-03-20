@@ -27,6 +27,8 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
     const [startedData, setStartedData] = useState("")
     const [isStarted, setIsStarted] = useState(false)
     const [elapsedTime, setElapsedTime] = useState(0);
+    const [savedStopWatchStartedId,setSavedStopWatchStartedId]=useState("");
+    const [savedStopWatchStarted,setSavedStopWatchStarted] = useState("")
 
 
     // type interval = {
@@ -73,7 +75,9 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
                 })
         
                 const res = await stopWatchStartedRes.json()
-                console.log(res);
+                console.log(res.stopWatchStarted.startedAt);
+                setSavedStopWatchStartedId(res.stopWatchStarted.id)
+                setSavedStopWatchStarted(res.stopWatchStarted.startedAt)
             } else {
                 console.log('error');
             }
@@ -87,6 +91,22 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
         if(isStarted){
             setIsStarted(false)
 
+            if(currentUser){
+                const userId = currentUser.id
+                const stopWatchEndedRes = await fetch('http://localhost:3000/api/timecard/stopWatchEnded',{
+                    method:"PUT",
+                    headers:{
+                        "Content-Type":"application/json",
+                    },
+                    body:JSON.stringify({userId,savedStopWatchStarted,savedStopWatchStartedId})
+                })
+                const stopWatchData = await stopWatchEndedRes.json()
+                console.log(stopWatchData);
+
+
+            } else {
+                console.log("認証されていません")
+            }
             
 
         } else {

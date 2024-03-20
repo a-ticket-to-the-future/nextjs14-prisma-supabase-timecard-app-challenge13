@@ -2,18 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prismaClient"
 
 
-export async function POST(req:NextRequest, res:NextResponse) {
+export async function PUT(req:NextRequest, res:NextResponse) {
     try {
-        const {userId} = await req.json()
-        console.log(userId)
+        const {userId,savedStopWatchStarted,savedStopWatchStartedId} = await req.json()
+        console.log(userId,savedStopWatchStarted,savedStopWatchStartedId)
 
-        const stopWatchEnded = await prisma.stopwatch.create({
+        const stopWatchEnded = await prisma.stopwatch.update({
+            where : {
+                id:savedStopWatchStartedId
+            },
             data: {
-                userId:userId,
+                
                 endedAt : new Date(),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            }
+                
+            },
         })
         console.log(stopWatchEnded)
         return NextResponse.json({stopWatchEnded})

@@ -7,10 +7,10 @@ export async function POST(req:NextRequest, res:NextResponse) {
 
     try {
 
-        const {userId} = await req.json()
+        const {userId,savedStopWatchStarted,savedStopWatchStartedId} = await req.json()
         //　ここをオブジェクトとして認識することをわすれないで！
         //{}なしで記述するとエラーになる
-        console.log(userId)
+        console.log(userId,savedStopWatchStarted,savedStopWatchStartedId)
 
         // const currentUser = await getCurrentUser()
         // const userId = currentUser?.id
@@ -18,7 +18,8 @@ export async function POST(req:NextRequest, res:NextResponse) {
     
         const stopWatchStarted = await prisma.stopwatch.create({
             data: {
-                userId: userId,
+                id: savedStopWatchStartedId,
+                userId:userId,
                 startedAt: new Date(),
                 createdAt: new Date(),
                 updatedAt: new Date(),
