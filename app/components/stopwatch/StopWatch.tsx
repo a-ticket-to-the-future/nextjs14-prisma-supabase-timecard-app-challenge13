@@ -84,10 +84,20 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
     }
 
     const handleStop = async () => {
-        setIsStarted(false)
+        if(isStarted){
+            setIsStarted(false)
+
+            
+
+        } else {
+            alert('スタートボタンが押されていません')
+        }
+
+
     }
 
     const handleReset = async () => {
+        
         setElapsedTime(0)
     }
 
