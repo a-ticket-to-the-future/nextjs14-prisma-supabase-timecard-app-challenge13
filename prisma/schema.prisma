@@ -72,6 +72,7 @@ model Stopwatch {
   userId              String?
   startedAt           DateTime?
   endedAt             DateTime?
+  stopWatchSubTotal   String?
   createdAt           DateTime
   updatedAt           DateTime
 
