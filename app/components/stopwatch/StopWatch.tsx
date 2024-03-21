@@ -1,7 +1,9 @@
 "use client"
 
 import { User } from '@/app/types/types';
+import moment from 'moment';
 import React, { useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
 
 export type stopWatchProps ={
     currentUser: User | null
@@ -29,6 +31,8 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
     const [elapsedTime, setElapsedTime] = useState(0);
     const [savedStopWatchStartedId,setSavedStopWatchStartedId]=useState("");
     const [savedStopWatchStarted,setSavedStopWatchStarted] = useState("")
+    const [measuredTime2, setMeasuredTime2] = useState("")
+
 
 
     // type interval = {
@@ -102,6 +106,25 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
                 })
                 const stopWatchData = await stopWatchEndedRes.json()
                 console.log(stopWatchData);
+                const stopWatchStartedData = moment(stopWatchData.stopWatchEnded.startedAt)
+                console.log(stopWatchStartedData.format('YYYY/MM/DD HH:mm:ss'))
+                const stopWatchEndedData = moment(stopWatchData.stopWatchEnded.endedAt)
+                console.log(stopWatchEndedData.format('YYYY/MM/DD HH:mm:ss'))
+                const diff = stopWatchEndedData.diff(stopWatchStartedData,'milliseconds')
+                console.log(diff)
+
+                const date= new Date(diff)
+                const hours = date.getUTCHours()
+                const minutes = date.getUTCMinutes()
+                const seconds = date.getSeconds()
+
+                const formattedTime = `${hours}:${minutes}:${seconds}`
+                // console.log(formattedTime);
+                // setMeasuredTime(formattedTime);
+
+                // const formattedTime = 
+                console.log(formattedTime);
+                setMeasuredTime2(formattedTime);
 
 
             } else {
@@ -129,6 +152,27 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
         return `${hours}時間${minutes}分${seconds}秒`
     }
 
+    const handleSave = async () => {
+        // console.log('Saveの記述をしてね')
+        if (typeof measuredTime2 === 'string' ) {
+
+            const stopWatchDifferentialDataSave = await fetch('http://localhost:3000/api/timecard/stopWatchDifferntialDataSave',{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json",
+                },
+                body:JSON.stringify({measuredTime2,savedStopWatchStartedId}),
+            })
+            const stopWatchSavedData = await stopWatchDifferentialDataSave.json()
+            console.log(stopWatchSavedData)
+            // alert('ストップウォッチで計測した値がDBに保存されました')
+            toast.success('ストップウォッチで計測した値がDBに保存されました')
+        } else {
+            // alert('ストップウォッチが計測されていません')
+            toast.error('ストップウォッチが計測されていません')
+        }
+    } 
+
   return ( 
 
         <div className=' flex flex-col mt-[160px]'>
@@ -154,7 +198,10 @@ const StopWatch:React.FC<stopWatchProps> = ({currentUser}) => {
                             
                         </div>
 
-                        <div className=' mt-[60px] border bg-orange-400 text-slate-50 w-[200px] h-[50px] text-center pt-3 font-bold rounded-md hover:scale-105 active:scale-95 cursor-pointer s border-gray-400 '>
+                        <div 
+                            className=' mt-[60px] border bg-orange-400 text-slate-50 w-[200px] h-[50px] text-center pt-3 font-bold rounded-md hover:scale-105 active:scale-95 cursor-pointer s border-gray-400 '
+                            onClick={handleSave}
+                            >
                             計測した時間を保存する
                         </div>
                         {/* <div className=' bg-sky-400 w-[800px] h-[50px] flex gap-20 justify-center '>
