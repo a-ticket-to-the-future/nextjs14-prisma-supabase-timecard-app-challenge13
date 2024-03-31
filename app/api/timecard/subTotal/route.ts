@@ -9,6 +9,12 @@ export async function PUT (req:NextRequest, res:NextResponse) {
         
         console.log(userId,formattedTime)
 
+        //当月データの総合計を取得する記述を追加してみる/2024年4月1日記述再開
+        const today = new Date()
+        const monthStart = new Date(today.getFullYear(),today.getMonth(),1)
+        const monthEnd = new Date(today.getFullYear(),today.getMonth() + 1, 0)
+        console.log(monthStart,monthEnd)
+
         const subTotal = await prisma.timecard.update({
             where : {
                 id : userId,
