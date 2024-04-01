@@ -233,12 +233,12 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
         const totalData = total._data
         // console.log(totalData)
         // if(total){
-
+        // console.log(moment(total).format('HH:mm:ss'))これでは00:00:00がしゅつりょくされた
             const hours2 = totalData.hours
             const minutes2 = totalData.minutes
             const seconds2 = totalData.seconds
 
-            const formattedTotal = `${hours2}:${minutes2}:${seconds2}`
+            const formattedTotal = `${hours2}時間${minutes2}分${seconds2}秒`
             // const slicedData = listData.slice(0, listData.length);
             // console.log(slicedData)
             console.log(formattedTotal)
@@ -368,8 +368,17 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
                                     {/* <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleSubTotalView}>小計を確認</div> */}
                                 </li>
                             </div>
-                        ))}
-                        <div className=' text-3xl font-bold text-red-500 mt-5'>本日：{`${convertedDate}`}の就業時間の合計は{`${total}`}です。お疲れ様でした。</div>
+                        ))
+                        
+                        }
+                        {lists.length !== 0 ?  (
+                            <div className=' text-2xl font-bold text-red-500 mt-5'>本日、{`${convertedDate}`}の就業時間の合計は{`${total}`}です。お疲れ様でした。</div>
+                            
+                        ):(
+
+                            <div className=' text-2xl font-bold text-red-500 mt-5'>本日の就業時間の合計を表示します。ボタンをクリックしてください</div>
+                        )}
+                        
                     </ul>
                 </div>
         </div>
