@@ -40,6 +40,8 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
     const [measuredTime, setMeasuredTime] = useState("")
     const [lists, setLists] = useState<Timecard[]>([])
     const [subTotal, setSubTotal] = useState("")
+    const [total , setTotal] = useState("")
+    const [convertedDate , setConvertedDate] = useState("")
     // const { supabase } = useSpabase();
 
     useEffect(() => {
@@ -201,7 +203,7 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
         
     // }
 
-    const handleList = async () => {
+    const handleList: () => Promise<void> = async () => {
         const response = await fetch('http://localhost:3000/api/timecard/lists',{
             cache:"no-store"
         })
@@ -210,8 +212,41 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
         setLists(listData)
 
 
-        // const slicedData = listData.slice(0, listData.length);
-        // console.log(slicedData)
+        //取得したsubTotalを足し合わせてtotalを表示させにいく。
+
+        const today = new Date()
+        const formattedDate = today.toDateString()
+        console.log(formattedDate)
+        const date2 = moment(formattedDate).format('YYYY/MM/DD')
+        console.log(date2)
+        setConvertedDate(date2) 
+
+        const total = listData.reduce((acc:moment.Duration,timecard:Timecard) => {
+            const convertedSubTotal = moment.duration(timecard.subTotal);
+            return acc.add(convertedSubTotal);
+        },moment.duration())
+        
+        console.log(total)
+        // console.log(total._data)
+        // console.log(total._data.seconds)
+        // let formattedTotal;
+        const totalData = total._data
+        // console.log(totalData)
+        // if(total){
+
+            const hours2 = totalData.hours
+            const minutes2 = totalData.minutes
+            const seconds2 = totalData.seconds
+
+            const formattedTotal = `${hours2}:${minutes2}:${seconds2}`
+            // const slicedData = listData.slice(0, listData.length);
+            // console.log(slicedData)
+            console.log(formattedTotal)
+            setTotal(formattedTotal)
+        // } else {
+        //     console.log("totalがnullだよ")
+        // }
+
 
 
         // const slicedData = [];
@@ -330,10 +365,11 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
                                     小計:{list.subTotal }
                                     {/* {DiffedSubTotal(moment(list.endedAt).diff(list.startedAt,"milliseconds"))} */}
                                     {/* 小計:{moment(list.subTotal).format('YYYY-MM-DD HH:mm:ss')} */}
-                                    <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleSubTotalView}>小計を確認</div>
+                                    {/* <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleSubTotalView}>小計を確認</div> */}
                                 </li>
                             </div>
                         ))}
+                        <div className=' text-3xl font-bold text-red-500 mt-5'>本日：{`${convertedDate}`}の就業時間の合計は{`${total}`}です。お疲れ様でした。</div>
                     </ul>
                 </div>
         </div>
