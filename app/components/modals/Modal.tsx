@@ -10,7 +10,7 @@ type ModalProps = {
     onClose: () => void
     onSubmit: () => void
     title?: string
-    body?: React.ReactElement
+    body?: any            //React.ReactElement
     footer?: React.ReactElement
     primaryLabel: string
     secondaryAction?: () => void
@@ -92,8 +92,8 @@ const Modal: React.FC<ModalProps> = ({
 
                         {/* 内容 */}
                         <div className=' relative flex-auto p-6'>{body}</div>
-
-                        <div className=' flex flex-col gap-2 px-6 pb-6'>
+                        
+                        <div className=' flex flex-col gap-2 mt-6 mx-10 px-6 pb-6'>
                             {/* ぼたん */}
                             <div className=' flex w-full flex-row items-center gap-4'>
                                 {/* サブボタン */}
