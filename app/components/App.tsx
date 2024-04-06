@@ -6,13 +6,26 @@ import { User } from '../types/types';
 import { Timecard } from '../types/types';
 import getCurrentUser from '../actions/getCurrentUser';
 import axios from 'axios';
-import { object } from 'zod';
+import { any, object } from 'zod';
 import moment, { utc } from 'moment';
 import momentTimezone from 'moment-timezone';
 import StopWatch from './stopwatch/StopWatch';
 // import DiffedSubTotal from '../actions/diffedSubTotal/DiffedSubTotal';
 import { list } from 'postcss';
 // import { error } from 'console';
+import { CSVLink } from 'react-csv';
+// import ReactCsvTotal from 'react-csv-total';
+// import QRCode from 'next-qrcode' 
+// import { url } from 'inspector';
+
+import QRCode from 'qrcode.react';
+import { Data } from 'react-csv/lib/core';
+// import OnScan from './onScan/OnScan';
+// import OnScan from './onScan/OnScan';
+
+
+import onScanModal from './modals/onScanModal';
+
 
 
 export type AppProps = {
@@ -26,7 +39,16 @@ export type AppProps = {
     // children: React.ReactNode
 }
 
-const App:React.FC<AppProps> =  ({currentUser}) => {
+interface onScanModalProps {
+    value:string
+    onScan:(data:any) => void
+}
+
+// const QRCode = React.lazy(() => import('next-qrcode'));
+
+
+
+const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
 
     const [users, setUsers] = useState([]);
     const [timecards, setTimecards] = useState([])
@@ -43,6 +65,18 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
     const [total , setTotal] = useState("")
     const [convertedDate , setConvertedDate] = useState("")
     // const { supabase } = useSpabase();
+    const [headers, setHeaders] = useState([
+        '開始時間',
+        '停止時間',
+        '小計',
+        // '合計',
+        
+    ])
+    const [csvDownloadData, setCsvDownloadData] = useState({})
+    // const [headers2,setHeaders2] = useState(['合計'])
+
+    const [isOpen, setIsOpen] = useState(false)
+
 
     useEffect(() => {
         
@@ -296,16 +330,45 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
         
     }
     
+    // const handleCsvDownload =  () => {
+    //     const data = lists.map((list) => ({
+    //         "開始時間": moment(list.startedAt).format('YYYY-MM-DD HH:mm:ss'),
+    //         "停止時間": moment(list.endedAt).format('YYYY-MM-DD HH:mm:ss'),
+    //         "小計": list.subTotal,
+    //         // "合計":total
+        
+    //     }))
+    //     // const data2 = moment(total).format('HH時間mm分ss秒')
+    //     return data;
+    //     // return data2;
+    //     // setCsvDownloadData(data)
+    // }
+
+    const onScan = () => {
+
+        setIsOpen(true)
+
+    }
+
+   
 
   return (
     <div className=' flex flex-col'>
         <h1 className=' text-4xl bg-green-400 text-slate-50 rounded-md font-bold px-[50px] py-[5px] text-center'>
             タイムカード
         </h1>
+        {/* <OnScan  /> */}
         <div className=' flex flex-col mt-[60px] gap-5'>
             <div className=' bg-sky-400 w-[1000px] h-[80px] flex gap-20 justify-center  '>
                 <div className='  border-2 border-slate-50 rounded-lg bg-gray-300 my-1 px-5 pt-6 text-center hover:scale-105 active:scale-95 cursor-pointer' onClick={timecardStart} >開始</div>
                 <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-6 bg-red-500 hover:scale-105 active:scale-95 cursor-pointer' onClick={timeCardEnd} >停止</div>
+
+                {/* { isOpen && (
+                    <div>
+
+                        <onScanModal />
+                    </div>
+                )} */}
 
                 { workingState ? (
 
@@ -347,6 +410,7 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
 
                     <div>その日の合計時間を表示させるために一覧表示させてみる</div>
                     <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleList}>ボタン</div>
+                    <div className=' w-[200px] h-[50px] ml-[100px] bg-green-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={onScan}>ボタン</div>
                     <ul className=' mt-10' >
                         {lists.map((list) => (
                             <div key={list.id}>
@@ -381,6 +445,14 @@ const App:React.FC<AppProps> =  ({currentUser}) => {
                         
                     </ul>
                 </div>
+                {/* <div>
+
+                <CSVLink data={handleCsvDownload} headers={headers} filename="work_hours.csv">
+                            {/* <ReactCsvTotal data={data} columns={['小計']} /> */}
+                            {/* <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer'>CSV出力</div>
+                </CSVLink>
+                </div> */} 
+                {/* */} 
         </div>
 
         <StopWatch currentUser = {currentUser}  />

@@ -12,6 +12,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    // "jsxImportSource": "next-qrcode",
     "plugins": [
       {
         "name": "next"
