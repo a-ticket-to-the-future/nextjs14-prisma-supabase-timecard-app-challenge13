@@ -67,7 +67,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({currentUser}) => {
     useEffect(() => {
         if( currentUser) {
             reset({
-                name: currentUser.userName,
+                name: currentUser.name,
                 image: currentUser.image || '',
             })
         }

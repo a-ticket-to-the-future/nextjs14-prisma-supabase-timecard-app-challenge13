@@ -24,7 +24,10 @@ import { Data } from 'react-csv/lib/core';
 // import OnScan from './onScan/OnScan';
 
 
-import onScanModal from './modals/onScanModal';
+import onScanModal from './modals/OnScanModal';
+import useOnScanModal from '../hooks/useOnScanModal';
+import Modal from './modals/Modal';
+import QRCodeScanner from './qrcodeScanner/QrCodeScanner';
 
 
 
@@ -76,6 +79,9 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     // const [headers2,setHeaders2] = useState(['合計'])
 
     const [isOpen, setIsOpen] = useState(false)
+    const onScanModal = useOnScanModal()
+    // const { modal, openModal, closeModal } = useModal()
+
 
 
     useEffect(() => {
@@ -344,9 +350,13 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     //     // setCsvDownloadData(data)
     // }
 
-    const onScan = () => {
+    const handleOpenModal = () => {
 
         setIsOpen(true)
+        
+    }
+
+    const handleCloseModal = () => {
 
     }
 
@@ -363,12 +373,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                 <div className='  border-2 border-slate-50 rounded-lg bg-gray-300 my-1 px-5 pt-6 text-center hover:scale-105 active:scale-95 cursor-pointer' onClick={timecardStart} >開始</div>
                 <div className='  border-2 border-slate-50 rounded-lg my-1 px-5 pt-6 bg-red-500 hover:scale-105 active:scale-95 cursor-pointer' onClick={timeCardEnd} >停止</div>
 
-                {/* { isOpen && (
-                    <div>
-
-                        <onScanModal />
-                    </div>
-                )} */}
+                
 
                 { workingState ? (
 
@@ -409,8 +414,27 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                 <div className=' border-2 border-blue-600 w-[1000px] h-auto p-5'>
 
                     <div>その日の合計時間を表示させるために一覧表示させてみる</div>
+                    <div className=' flex'>
+
                     <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleList}>ボタン</div>
-                    <div className=' w-[200px] h-[50px] ml-[100px] bg-green-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={onScan}>ボタン</div>
+                    <div className=' w-[200px] h-[50px] ml-[100px] bg-green-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' 
+                            onClick={
+                                
+                                () => {
+                                   
+                                        
+                                        onScanModal.onOpen()
+                                   
+                                    
+                                }
+                                
+                     }>
+                        QRコード
+                    </div>
+                    </div>
+
+                      
+
                     <ul className=' mt-10' >
                         {lists.map((list) => (
                             <div key={list.id}>

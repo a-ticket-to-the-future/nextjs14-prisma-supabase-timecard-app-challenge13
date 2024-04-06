@@ -14,7 +14,9 @@ const nextConfig = {
     //     config.externals = [...config.externals, "bcrypt"];
     //     return config;
     //   },
-    
+    newFeatures: {
+        useModal: true,
+      },
 
 };
 // export default nextConfig;

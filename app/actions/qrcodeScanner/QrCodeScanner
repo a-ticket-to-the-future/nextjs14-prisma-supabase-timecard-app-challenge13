@@ -1,0 +1,20 @@
+// import { FC } from "react"
+// import React, {  useEffect, useRef, useState } from 'react'
+// import jsQR from 'jsqr'
+// import Link from 'next/link'
+// // import { Result } from 'postcss'
+// // import Result from '../Result/page'
+// import { useRouter } from 'next/navigation'
+// /// <reference types="@types/howler" />
+
+// import {Howl,Howler} from 'howler';
+
+// type Props = {
+
+// }
+
+// const QrcodeScanner:React.FC<Props> = () => {
+//     console.log("眠い")
+// }
+
+// export default QrcodeScanner

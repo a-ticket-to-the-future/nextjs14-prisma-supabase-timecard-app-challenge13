@@ -9,6 +9,7 @@ import SignupModal from "./components/modals/SignupModal";
 import LoginModal from "./components/modals/LoginModal";
 import ProfileModal from "./components/modals/ProfileModal";
 import ToasterContext from "./context/ToasterContext";
+import OnScanModal from "./components/modals/OnScanModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,6 +36,7 @@ export default async function RootLayout({
           <SignupModal />
           <LoginModal />
           <ProfileModal currentUser={currentUser} />
+          <OnScanModal />
 
           <div className=" flex min-h-screen flex-col">
             <Navigation currentUser={currentUser} />
