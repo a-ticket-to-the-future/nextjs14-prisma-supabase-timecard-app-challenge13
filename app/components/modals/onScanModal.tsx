@@ -5,7 +5,7 @@ import Modal from './Modal'
 import { useRouter } from 'next/navigation'
 import useOnScanModal from '@/app/hooks/useOnScanModal'
 import Link from 'next/link'
-import Result from "../Result/page"
+import Result from "../../Result/page"
 import {Howl,Howler} from 'howler';
 import jsQR from 'jsqr'
 import QRCodeScanner from '../qrcodeScanner/QrCodeScanner'
@@ -33,9 +33,9 @@ const bodyContent = (
 
   <div className='flex  w-[620px] h-[580px] border-2 ml-[130px] my-5 border-blue-500 justify-center items-center'>
      <div>
-        <div>試し</div>
+        
         <QRCodeScanner />
-        <div>ためし</div>
+        
         
      </div>
   </div>

@@ -4,7 +4,7 @@ import React, { FC, useEffect, useRef, useState } from 'react'
 import jsQR from 'jsqr'
 import Link from 'next/link'
 // import { Result } from 'postcss'
-import Result from '../Result/page'
+import Result from '../../Result/page'
 import { useRouter } from 'next/navigation'
 /// <reference types="@types/howler" />
 
@@ -125,7 +125,7 @@ const QRCodeScanner:FC<Props> = () => {
       )}
 
       {result && (
-        <div className='flex justify-center'>
+        <div className='flex flex-col justify-center'>
           <Link href={result}>
             <button className=' text-blue-600 border-blue-300'>push</button>
           </Link>
