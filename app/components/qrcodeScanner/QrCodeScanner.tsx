@@ -4,7 +4,7 @@ import React, { FC, useEffect, useRef, useState } from 'react'
 import jsQR from 'jsqr'
 import Link from 'next/link'
 // import { Result } from 'postcss'
-import Result from '../../result/Succescc.tsx/page'
+import Result from '../../result/Success.tsx/Success'
 import { useRouter } from 'next/navigation'
 /// <reference types="@types/howler" />
 
@@ -12,6 +12,9 @@ import {Howl,Howler} from 'howler';
 // import from '../../../public/sound/scanComplete.mp3'
 
 import { QRCodeSVG } from "qrcode.react"
+import useOnScanModal from '@/app/hooks/useOnScanModal'
+import App from '../App'
+import Success from "@/app/result/Success2"
 // {///* <div>
 //           <QRCodeSVG value={`http://localhost:3000/Result`} size={224}/>
 //         </div> */}
@@ -33,6 +36,8 @@ const QRCodeScanner:FC<Props> = () => {
     const [error, setError] = useState('')
     const router = useRouter()
     const [onSound,setOnSound] = useState(false)
+    const onScanModal = useOnScanModal()
+
 
     
 
@@ -59,18 +64,18 @@ const QRCodeScanner:FC<Props> = () => {
         .catch((error) => console.error('Error accessing media devices:', error))
 
 
-        //　2024年4月8日示された通りここからコメントアウトする
-    //     const currentVideoRef = videoRef.current
+        // 　2024年4月8日示された通りここからコメントアウトする
+        const currentVideoRef = videoRef.current
 
 
-    //     //　コンポーネントがアンマウントされたら、カメラのストリームを停止する
-    //     return () => {
-    //       if (currentVideoRef && currentVideoRef.srcObject) {
-    //         const stream = currentVideoRef.srcObject as MediaStream
-    //         const tracks = stream.getTracks()
-    //         tracks.forEach((track) => track.stop())
-    //       }
-    //     }
+        //　コンポーネントがアンマウントされたら、カメラのストリームを停止する
+        return () => {
+          if (currentVideoRef && currentVideoRef.srcObject) {
+            const stream = currentVideoRef.srcObject as MediaStream
+            const tracks = stream.getTracks()
+            tracks.forEach((track) => track.stop())
+          }
+        }
 
     },[])
     //　ここまで
@@ -94,6 +99,12 @@ const QRCodeScanner:FC<Props> = () => {
           const qrCodeData = jsQR(imageData.data, imageData.width, imageData.height)
           if (qrCodeData) {
 
+            // const res = await fetch('http://localhost:3000/api/timecard/scanId',{
+            //   cache:"no-store",
+            // })
+
+            // console.log(res)
+
             //　2024年4月8日示された通りコメントアウトする
             // //　スキャンされた内容を確認する
             // if (qrCodeData.data !== 'http://localhost:3000/Result') {
@@ -115,18 +126,45 @@ const QRCodeScanner:FC<Props> = () => {
             //   });
             // return
             //ここまで
-
-            const userId = qrCodeData.data
+            //一旦ここから
+            const userIdData = qrCodeData.data
+            // console.log({userIdData})
             // Timecardテーブルに"userID"が存在するか確認
-            const res = await fetch("http://localhost:3000/api/scanId",{
-              method:"PUT",
+            const res = await fetch("http://localhost:3000/api/timecard/scanId",{
+              method:"POST",
               headers:{
                 "Content-Type":"application/json",
-                body:JSON.stringify({userId})
-              }
+              },
+              body:JSON.stringify({userIdData}),
             })
-            const checkUserId = res.json()
-            console.log(checkUserId); 
+            //ここまでをコメントアウトする
+            // const res = await fetch('http://localhost:3000/api/timecard/scanId',{
+            //   cache:'no-cache'
+            // })
+            const checkedUserData = await res.json()
+            console.log(checkedUserData)
+
+            // if (checkUserId !== null) {
+            //   console.log('ユーザーデータが存在しません')
+            // } else {
+
+            //   console.log(checkUserId); 
+            // }
+            setResult(checkedUserData)
+
+            sound.play()
+
+            sound.once("end", () => {
+                if (videoRef.current && videoRef.current.srcObject) {
+                  const stream = videoRef.current.srcObject as MediaStream;
+                  const tracks = stream.getTracks();
+                  tracks.forEach((track) => track.stop());
+                }
+              });
+
+               onScanModal.onClose()
+
+
 
             }
 
@@ -134,6 +172,10 @@ const QRCodeScanner:FC<Props> = () => {
           setTimeout(scanQrCode, 50)
           // requestAnimationFrame(scanQrCode)
         }
+
+            
+           
+
       }
     
     
@@ -152,10 +194,11 @@ const QRCodeScanner:FC<Props> = () => {
 
       {result && (
         <div className='flex flex-col justify-center'>
-          <Link href={result}>
+          {/* <Link href={result}>
             <button className=' text-blue-600 border-blue-300'>push</button>
           </Link>
-          <Result />
+          <Result /> */}
+          
         </div>
       )}
       {error && <p className=' text-center text-xs text-red-500'>{error}</p>}
