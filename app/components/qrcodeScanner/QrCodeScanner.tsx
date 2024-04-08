@@ -4,12 +4,17 @@ import React, { FC, useEffect, useRef, useState } from 'react'
 import jsQR from 'jsqr'
 import Link from 'next/link'
 // import { Result } from 'postcss'
-import Result from '../../Result/page'
+import Result from '../../result/Succescc.tsx/page'
 import { useRouter } from 'next/navigation'
 /// <reference types="@types/howler" />
 
 import {Howl,Howler} from 'howler';
 // import from '../../../public/sound/scanComplete.mp3'
+
+import { QRCodeSVG } from "qrcode.react"
+// {///* <div>
+//           <QRCodeSVG value={`http://localhost:3000/Result`} size={224}/>
+//         </div> */}
 
 type Props = {}
 
@@ -53,21 +58,24 @@ const QRCodeScanner:FC<Props> = () => {
         })
         .catch((error) => console.error('Error accessing media devices:', error))
 
-        const currentVideoRef = videoRef.current
+
+        //　2024年4月8日示された通りここからコメントアウトする
+    //     const currentVideoRef = videoRef.current
 
 
-        //　コンポーネントがアンマウントされたら、カメラのストリームを停止する
-        return () => {
-          if (currentVideoRef && currentVideoRef.srcObject) {
-            const stream = currentVideoRef.srcObject as MediaStream
-            const tracks = stream.getTracks()
-            tracks.forEach((track) => track.stop())
-          }
-        }
+    //     //　コンポーネントがアンマウントされたら、カメラのストリームを停止する
+    //     return () => {
+    //       if (currentVideoRef && currentVideoRef.srcObject) {
+    //         const stream = currentVideoRef.srcObject as MediaStream
+    //         const tracks = stream.getTracks()
+    //         tracks.forEach((track) => track.stop())
+    //       }
+    //     }
 
     },[])
+    //　ここまで
 
-    const scanQrCode = () => {
+    const scanQrCode = async () => {
 
       const sound = new Howl({
         src:['/sound/scanComplete.mp3'],
@@ -85,35 +93,53 @@ const QRCodeScanner:FC<Props> = () => {
           //　QRコードをスキャンする
           const qrCodeData = jsQR(imageData.data, imageData.width, imageData.height)
           if (qrCodeData) {
-            //　スキャンされた内容を確認する
-            if (qrCodeData.data !== 'http://localhost:3000/Result') {
-              setError('対応していないQRコードです')
-              setTimeout(scanQrCode, 100) //　スキャンの頻度を制限
-              return
-            }
-            console.log(qrCodeData.data)
-            setResult(qrCodeData.data)
-            router.push(qrCodeData.data)
-            sound.play()
 
-            sound.once("end", () => {
-                if (videoRef.current && videoRef.current.srcObject) {
-                  const stream = videoRef.current.srcObject as MediaStream;
-                  const tracks = stream.getTracks();
-                  tracks.forEach((track) => track.stop());
-                }
-              });
-            return
+            //　2024年4月8日示された通りコメントアウトする
+            // //　スキャンされた内容を確認する
+            // if (qrCodeData.data !== 'http://localhost:3000/Result') {
+            //   setError('対応していないQRコードです')
+            //   setTimeout(scanQrCode, 100) //　スキャンの頻度を制限
+            //   return
+            // }
+            // console.log(qrCodeData.data)
+            // setResult(qrCodeData.data)
+            // router.push(qrCodeData.data)
+            // sound.play()
+
+            // sound.once("end", () => {
+            //     if (videoRef.current && videoRef.current.srcObject) {
+            //       const stream = videoRef.current.srcObject as MediaStream;
+            //       const tracks = stream.getTracks();
+            //       tracks.forEach((track) => track.stop());
+            //     }
+            //   });
+            // return
+            //ここまで
+
+            const userId = qrCodeData.data
+            // Timecardテーブルに"userID"が存在するか確認
+            const res = await fetch("http://localhost:3000/api/scanId",{
+              method:"PUT",
+              headers:{
+                "Content-Type":"application/json",
+                body:JSON.stringify({userId})
+              }
+            })
+            const checkUserId = res.json()
+            console.log(checkUserId); 
+
+            }
 
           }
           setTimeout(scanQrCode, 50)
           // requestAnimationFrame(scanQrCode)
         }
       }
-    }
+    
     
 
   return (
+    <div>
     <div>
       {!result && (
         <div className=' flex justify-center'>
@@ -133,6 +159,9 @@ const QRCodeScanner:FC<Props> = () => {
         </div>
       )}
       {error && <p className=' text-center text-xs text-red-500'>{error}</p>}
+    </div>
+
+      
     </div>
   )
 }
