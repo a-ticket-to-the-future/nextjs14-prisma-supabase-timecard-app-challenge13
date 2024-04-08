@@ -18,7 +18,7 @@ import { CSVLink } from 'react-csv';
 // import QRCode from 'next-qrcode' 
 // import { url } from 'inspector';
 
-import QRCode from 'qrcode.react';
+import QRCode, { QRCodeSVG } from 'qrcode.react';
 import { Data } from 'react-csv/lib/core';
 // import OnScan from './onScan/OnScan';
 // import OnScan from './onScan/OnScan';
@@ -392,7 +392,9 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                     <div className=' text-center'>{measuredTime}</div>
                     
                 </div>
-
+                <div>
+                    <QRCodeSVG value='f543d8f5-87ed-4a56-ba17-ded7e83ce040' size={224} />
+                </div>
 
             </div>
             {/* <div className=' bg-sky-400 w-[800px] h-[50px] flex gap-20 justify-center '>
