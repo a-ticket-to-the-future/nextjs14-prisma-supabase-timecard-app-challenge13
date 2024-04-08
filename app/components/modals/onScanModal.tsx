@@ -5,7 +5,7 @@ import Modal from './Modal'
 import { useRouter } from 'next/navigation'
 import useOnScanModal from '@/app/hooks/useOnScanModal'
 import Link from 'next/link'
-import Result from "../../result/Succescc.tsx/page"
+import Result from "../../result/Success.tsx/Success"
 import {Howl,Howler} from 'howler';
 import jsQR from 'jsqr'
 import QRCodeScanner from '../qrcodeScanner/QrCodeScanner'
