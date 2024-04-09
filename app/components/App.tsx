@@ -47,6 +47,12 @@ interface onScanModalProps {
     onScan:(data:any) => void
 }
 
+export interface ModalType {
+    isOpen: boolean
+    onOpen:(callback?: ()=> void) => void
+    onClose:(callback?: ()=> void) => void
+}
+
 // const QRCode = React.lazy(() => import('next-qrcode'));
 
 
@@ -350,15 +356,26 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     //     // setCsvDownloadData(data)
     // }
 
-    const handleOpenModal = () => {
+    // const handleOpenModal = () => {
 
-        setIsOpen(true)
+    //     setIsOpen(true)
         
-    }
+    // }
 
-    const handleCloseModal = () => {
+    // const handleCloseModal = () => {
 
-    }
+    // }
+
+    const handleScan = () => {
+        
+            onScanModal.onOpen(() => setWorkingState(true));
+        
+    };
+    const handleScanOff = () => {
+        
+            onScanModal.onClose(() => setWorkingState(false))
+        
+    };
 
    
 
@@ -392,11 +409,11 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                     <div className=' text-center'>{measuredTime}</div>
                     
                 </div>
+
+            </div>
                 <div>
                     <QRCodeSVG value='f543d8f5-87ed-4a56-ba17-ded7e83ce040' size={224} />
                 </div>
-
-            </div>
             {/* <div className=' bg-sky-400 w-[800px] h-[50px] flex gap-20 justify-center '>
                 <div className='  border-2 border-slate-50 rounded-lg px-5 pt-3'>ボタン</div>
                 <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >状態</div>
@@ -418,21 +435,24 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                     <div>その日の合計時間を表示させるために一覧表示させてみる</div>
                     <div className=' flex'>
 
-                    <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleList}>ボタン</div>
-                    <div className=' w-[200px] h-[50px] ml-[100px] bg-green-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' 
-                            onClick={
-                                
-                                () => {
-                                   
-                                        
-                                        onScanModal.onOpen()
-                                   
-                                    
-                                }
-                                
-                     }>
-                        QRコード
-                    </div>
+                    <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer mr-[200px]' onClick={handleList}>ボタン</div>
+                    {workingState === false ? (
+                        <div className=' flex gap-10'>
+
+                            <div className=' w-[200px] h-[50px] bg-gray-400 border-gray-400 border-2 mt-5 ml-[50px] text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleScanOff}>カメラオフ</div>
+                            <div className=' w-[200px] h-[50px] ml-[100px] bg-green-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' 
+                            onClick={handleScan}>
+                            QRコード
+                            <QRCodeScanner setWorkingState={setWorkingState} />
+                            </div>
+                        </div>
+                        ):(
+                        <div>
+                            <QRCodeScanner setWorkingState={setWorkingState} />
+                            <div className=' w-[200px] h-[50px] bg-gray-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleScanOff}>カメラオフ</div>
+                            
+                        </div>
+                    )}
                     </div>
 
                       

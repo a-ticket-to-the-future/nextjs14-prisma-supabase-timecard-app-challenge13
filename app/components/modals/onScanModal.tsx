@@ -19,8 +19,11 @@ import QRCodeScanner from '../qrcodeScanner/QrCodeScanner'
 //   disabled?: boolean
 //   del?: boolean
 // }
+type setWorkingStateProps = {
+ setWorkingState:(state:boolean) => void
+}
 
-const OnScanModal = () => {
+const OnScanModal:FC<setWorkingStateProps> = ({setWorkingState}) => {
 
   const router = useRouter()
     const onScanModal = useOnScanModal()
@@ -31,10 +34,10 @@ const OnScanModal = () => {
 
 const bodyContent = (
 
-  <div className='flex  w-[620px] h-[580px] border-2 ml-[130px] my-5 border-blue-500 justify-center items-center'>
+  <div className='flex  w-[480px] h-[380px] border-2 ml-[130px] my-5 border-blue-500 justify-center items-center'>
      <div>
         
-        <QRCodeScanner />
+        <QRCodeScanner setWorkingState={setWorkingState} />
         
         
      </div>

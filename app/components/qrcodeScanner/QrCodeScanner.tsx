@@ -4,7 +4,7 @@ import React, { FC, useEffect, useRef, useState } from 'react'
 import jsQR from 'jsqr'
 import Link from 'next/link'
 // import { Result } from 'postcss'
-import Result from '../../result/Success.tsx/Success'
+// import Result from '../../result/Success'
 import { useRouter } from 'next/navigation'
 /// <reference types="@types/howler" />
 
@@ -14,19 +14,22 @@ import {Howl,Howler} from 'howler';
 import { QRCodeSVG } from "qrcode.react"
 import useOnScanModal from '@/app/hooks/useOnScanModal'
 import App from '../App'
-import Success from "@/app/result/Success2"
+// import Success from "@/app/result/Success"
+import Success2 from '@/app/result/Success2'
 // {///* <div>
 //           <QRCodeSVG value={`http://localhost:3000/Result`} size={224}/>
 //         </div> */}
 
-type Props = {}
+type Props = {
+  setWorkingState: (state:boolean) => void
+}
 
 
 // import {useQRCode} from "react-qr-reader"
 
 //React18以降は:FC<>で良いらしい
 
-const QRCodeScanner:FC<Props> = () => {
+const QRCodeScanner:FC<Props> = ({setWorkingState}) => {
 
     // const {result} = useQRCode()
 
@@ -40,7 +43,7 @@ const QRCodeScanner:FC<Props> = () => {
 
 
     
-
+    
 
     useEffect(() => {
       const constraints = {
@@ -77,7 +80,7 @@ const QRCodeScanner:FC<Props> = () => {
           }
         }
 
-    },[])
+    },[setWorkingState(true),setWorkingState(false)])
     //　ここまで
 
     const scanQrCode = async () => {
@@ -151,7 +154,7 @@ const QRCodeScanner:FC<Props> = () => {
             //   console.log(checkUserId); 
             // }
             setResult(checkedUserData)
-
+            setWorkingState(true);
             sound.play()
 
             sound.once("end", () => {
@@ -161,7 +164,7 @@ const QRCodeScanner:FC<Props> = () => {
                   tracks.forEach((track) => track.stop());
                 }
               });
-
+               setWorkingState(false)
                onScanModal.onClose()
 
 
@@ -198,7 +201,7 @@ const QRCodeScanner:FC<Props> = () => {
             <button className=' text-blue-600 border-blue-300'>push</button>
           </Link>
           <Result /> */}
-          
+          {/* <Success2 id={} userId={} startedAt={} endedAt={} updatedAt={} /> */}
         </div>
       )}
       {error && <p className=' text-center text-xs text-red-500'>{error}</p>}
