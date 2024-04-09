@@ -11,6 +11,10 @@ import ProfileModal from "./components/modals/ProfileModal";
 import ToasterContext from "./context/ToasterContext";
 import OnScanModal from "./components/modals/OnScanModal";
 
+// type setWorkingStateProps = {
+//   setWorkingProps = (state:boolean) => void
+// }
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -36,7 +40,7 @@ export default async function RootLayout({
           <SignupModal />
           <LoginModal />
           <ProfileModal currentUser={currentUser} />
-          <OnScanModal />
+          {/* <OnScanModal setWorkingState={setWorkingState} /> */}
 
           <div className=" flex min-h-screen flex-col">
             <Navigation currentUser={currentUser} />
