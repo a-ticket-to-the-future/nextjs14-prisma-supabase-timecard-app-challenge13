@@ -53,7 +53,7 @@ const QRCodeScanner:FC<Props> = ({setWorkingState}) => {
           height: { ideal: 300},
         },
       }
-
+      const currentVideoRef = videoRef.current
       //　デバイスのカメラにアクセする
       navigator.mediaDevices
         .getUserMedia(constraints).then((stream) => {
@@ -68,7 +68,7 @@ const QRCodeScanner:FC<Props> = ({setWorkingState}) => {
 
 
         // 　2024年4月8日示された通りここからコメントアウトする
-        const currentVideoRef = videoRef.current
+        
 
 
         //　コンポーネントがアンマウントされたら、カメラのストリームを停止する

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { JSXElementConstructor, ReactNode, useCallback, useEffect, useState } from 'react'
+import React, { JSXElementConstructor, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import prisma from '../lib/prismaClient';
 import { User } from '../types/types';
 import { Timecard } from '../types/types';
@@ -24,10 +24,13 @@ import { Data } from 'react-csv/lib/core';
 // import OnScan from './onScan/OnScan';
 
 
-import onScanModal from './modals/OnScanModal';
+import onScanModal from './modals/onScanModal';
 import useOnScanModal from '../hooks/useOnScanModal';
 import Modal from './modals/Modal';
 import QRCodeScanner from './qrcodeScanner/QrCodeScanner';
+import jsQR from 'jsqr';
+import {Howl,Howler} from 'howler';
+import { useRouter } from 'next/navigation'
 
 
 
@@ -87,7 +90,63 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const onScanModal = useOnScanModal()
     // const { modal, openModal, closeModal } = useModal()
+    //　カメラの状態を管理する状態変数
+    const [isCameraOn, setIsCameraOn] = useState(false)
+    //　カメラのストリームを保持する状態変数
+    const [cameraStream, setCameraStream] = useState<MediaStream | null>(null)
+    const videoRef = useRef<HTMLVideoElement>(null)
+    // const videoRef = useRef<HTMLVideoElement>(null)
+    const canvasRef = useRef<HTMLCanvasElement>(null)
+    const [result, setResult] = useState('')
+    const router = useRouter()
 
+
+    // const turnOnCamera = async () => {
+    //     try {
+    //         const stream = await navigator.mediaDevices.getUserMedia({video: true})
+    //         if (videoRef.current) videoRef.current.srcObject = stream
+    //         setCameraStream(stream)
+    //         setIsCameraOn(true)
+    //     } catch (error) {
+    //         console.error('カメラのアクセスに失敗しました',error)
+    //     }
+    // }
+
+    // //　カメラをオフにする関数
+    // const turnOffCamera = () => {
+    //     if(videoRef.current && videoRef.current.srcObject) {
+    //         // cameraStream.getTracks().forEach(track => track.stop())
+    //         // setCameraStream(null)
+    //         const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+    //         tracks.forEach(track => track.stop())
+    //         videoRef.current.srcObject = null
+
+    //     }
+    //     setIsCameraOn(false)
+    // }
+
+    // useEffect(() => {
+    //     return () => {
+    //         if(cameraStream) {
+    //             cameraStream.getTracks().forEach(track => track.stop())
+    //         }
+    //     }
+    // },[cameraStream])
+
+    // //　カメラの状態が変わったときに実行される副作用
+    // useEffect(() => {
+    //     return () => {
+    //         //　コンポーネントのアンマウント時にカメラをオフにする
+    //         turnOffCamera()
+    //     }
+    // },[])
+
+    // useEffect(() => {
+    //     if(isCameraOn && cameraStream && videoRef.current){
+    //         videoRef.current.srcObject = cameraStream
+    //     }
+
+    // },[isCameraOn, cameraStream])
 
 
     useEffect(() => {
@@ -366,17 +425,212 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
 
     // }
 
-    const handleScan = () => {
+    // const handleScan = () => {
         
-            onScanModal.onOpen(() => setWorkingState(true));
+    //         onScanModal.onOpen(() => setWorkingState(true));
         
-    };
-    const handleScanOff = () => {
-        
-            onScanModal.onClose(() => setWorkingState(false))
-        
-    };
+    // };
+    // const handleScanOff = () => {
 
+    //     if(isCameraOn) {
+    //         //カメラをオフにする
+    //         const currentVideoRef = videoRef.current
+    //         if(currentVideoRef && currentVideoRef.srcObject){
+
+    //             const stream = currentVideoRef.srcObject as MediaStream
+    //             const tracks = stream.getTracks() as MediaStreamTrack[]
+    //             if(tracks){
+    
+    //                 tracks.forEach((track : MediaStreamTrack) => {
+    //                     track.stop()
+    //                 })
+    //                 setIsCameraOn(false)
+    //             }
+    //         }
+    //     }
+    //         // onScanModal.onClose(() => setWorkingState(false))
+        
+    // };
+
+    const scanQrCode = async () => {
+
+        const sound = new Howl({
+          src:['/sound/scanComplete.mp3'],
+        })
+        // setOnSound(sound)
+  
+        const canvas = canvasRef.current
+        const video = videoRef.current
+        if (canvas && video) {
+          const ctx = canvas.getContext('2d')
+          if (ctx) {
+            //　カメラの映像をcanvasに描画する
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+            //　QRコードをスキャンする
+            const qrCodeData = jsQR(imageData.data, imageData.width, imageData.height)
+            if (qrCodeData) {
+  
+              // const res = await fetch('http://localhost:3000/api/timecard/scanId',{
+              //   cache:"no-store",
+              // })
+  
+              // console.log(res)
+  
+              //　2024年4月8日示された通りコメントアウトする
+              // //　スキャンされた内容を確認する
+              // if (qrCodeData.data !== 'http://localhost:3000/Result') {
+              //   setError('対応していないQRコードです')
+              //   setTimeout(scanQrCode, 100) //　スキャンの頻度を制限
+              //   return
+              // }
+              // console.log(qrCodeData.data)
+              // setResult(qrCodeData.data)
+              // router.push(qrCodeData.data)
+              // sound.play()
+  
+              // sound.once("end", () => {
+              //     if (videoRef.current && videoRef.current.srcObject) {
+              //       const stream = videoRef.current.srcObject as MediaStream;
+              //       const tracks = stream.getTracks();
+              //       tracks.forEach((track) => track.stop());
+              //     }
+              //   });
+              // return
+              //ここまで
+              //一旦ここから
+              const userIdData = qrCodeData.data
+              // console.log({userIdData})
+              // Timecardテーブルに"userID"が存在するか確認
+              const res = await fetch("http://localhost:3000/api/timecard/scanId",{
+                method:"POST",
+                headers:{
+                  "Content-Type":"application/json",
+                },
+                body:JSON.stringify({userIdData}),
+              })
+              //ここまでをコメントアウトする
+              // const res = await fetch('http://localhost:3000/api/timecard/scanId',{
+              //   cache:'no-cache'
+              // })
+              const checkedUserData = await res.json()
+              console.log(checkedUserData)
+  
+              // if (checkUserId !== null) {
+              //   console.log('ユーザーデータが存在しません')
+              // } else {
+  
+              //   console.log(checkUserId); 
+              // }
+              setResult(checkedUserData)
+              setWorkingState(true);
+              sound.play()
+  
+              sound.once("end", () => {
+                  if (videoRef.current && videoRef.current.srcObject) {
+                    const stream = videoRef.current.srcObject as MediaStream;
+                    const tracks = stream.getTracks();
+                    tracks.forEach((track) => track.stop());
+                  }
+                });
+                 setWorkingState(false)
+                 onScanModal.onClose()
+  
+  
+  
+              }
+  
+            }
+            setTimeout(scanQrCode, 50)
+            // requestAnimationFrame(scanQrCode)
+          }
+  
+              
+             
+  
+        }
+
+    
+        
+
+    const handleCameraToggle = () => {
+
+        // useEffect(()=> {
+
+       
+
+        
+
+        // 仮置き
+        // return () => {
+        //     if (currentVideoRef && currentVideoRef.srcObject) {
+        //       const stream = currentVideoRef.srcObject as MediaStream
+        //       const tracks = stream.getTracks()
+        //       tracks.forEach((track) => track.stop())
+        //     }
+        //   }
+          //　ここまで
+
+        if(isCameraOn) {
+            //カメラをオフにする
+            const currentVideoRef = videoRef.current
+            if(currentVideoRef && currentVideoRef.srcObject){
+
+                const stream = currentVideoRef.srcObject as MediaStream
+                const tracks = stream.getTracks() as MediaStreamTrack[]
+                if(tracks){
+    
+                    tracks.forEach((track : MediaStreamTrack) => {
+                        track.stop()
+                    })
+                    setIsCameraOn(false)
+                }
+            }
+        } else {
+            //カメラをオンにする
+
+            const constraints = {
+                video: {
+                  facingMode: 'environment',
+                  width: {ideal: 300},
+                  height: { ideal: 300},
+                },
+              }
+
+            navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+                const videoElement = videoRef.current
+                if(videoElement){
+
+                    videoElement.srcObject = stream 
+                    videoElement.play()
+                    scanQrCode()
+                    setIsCameraOn(true)
+                }
+            })
+            .catch((error) => console.error("Error accessing media devices"))
+
+            // 　2024年4月8日示された通りここからコメントアウトする
+        // const currentVideoRef = videoRef.current
+
+
+        //　コンポーネントがアンマウントされたら、カメラのストリームを停止する
+        // return () => {
+        //   if (currentVideoRef && currentVideoRef.srcObject) {
+        //     const stream = currentVideoRef.srcObject as MediaStream
+        //     const tracks = stream.getTracks()
+        //     tracks.forEach((track) => track.stop())
+        //   }
+        // }
+
+    // },[setWorkingState(true),setWorkingState(false)])
+    //　ここまで
+
+    
+        }
+    // },[isCameraOn])
+    }
+
+    
    
 
   return (
@@ -436,8 +690,8 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                     <div className=' flex'>
 
                     <div className=' w-[200px] h-[50px] bg-orange-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer mr-[200px]' onClick={handleList}>ボタン</div>
-                    {workingState === false ? (
-                        <div className=' flex gap-10'>
+                    
+                        {/* <div className=' flex gap-10'>
 
                             <div className=' w-[200px] h-[50px] bg-gray-400 border-gray-400 border-2 mt-5 ml-[50px] text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleScanOff}>カメラオフ</div>
                             <div className=' w-[200px] h-[50px] ml-[100px] bg-green-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' 
@@ -445,15 +699,37 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                             QRコード
                             <QRCodeScanner setWorkingState={setWorkingState} />
                             </div>
-                        </div>
-                        ):(
-                        <div>
+                        </div>  */}
+                        
+                        {/* <div>
                             <QRCodeScanner setWorkingState={setWorkingState} />
                             <div className=' w-[200px] h-[50px] bg-gray-400 border-gray-400 border-2 mt-5 text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' onClick={handleScanOff}>カメラオフ</div>
                             
                         </div>
-                    )}
+                    */}
+
+                    <div>
+                        <video ref={videoRef} />
+                        <button 
+                                onClick={handleCameraToggle}
+                                className=' w-[200px] h-[50px] bg-green-400 border-gray-400 border-2 mt-5 ml-[50px] text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' >
+                            {isCameraOn ? 'カメラをオフにする' : "カメラをオンにする"}
+                        </button>
                     </div>
+                    </div>
+
+                    {/* <div>
+                        {!isCameraOn && (
+                            <button onClick={turnOnCamera} className=' w-[200px] h-[50px] bg-green-400 border-gray-400 border-2 mt-5 ml-[50px] text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' >カメラをオンにする</button>
+                        )}
+                        {!isCameraOn && (
+                            <button onClick={turnOffCamera} className=' w-[200px] h-[50px] bg-gray-400 border-gray-400 border-2 mt-5 ml-[50px] text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer'>カメラをオフにする</button>
+                        )}
+                        {!isCameraOn && (
+                            <video ref={videoRef} autoPlay playsInline style={{ width: '100%'}} />
+                        )}
+                    </div> */}
+                    
 
                       
 
