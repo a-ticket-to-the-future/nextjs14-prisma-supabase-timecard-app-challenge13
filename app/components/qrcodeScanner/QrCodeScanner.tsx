@@ -22,7 +22,10 @@ import Success2 from '@/app/result/Success2'
 
 type Props = {
   setWorkingState: (state:boolean) => void
+  // setIsCameraOn:(state:boolean) => void
 }
+
+
 
 
 // import {useQRCode} from "react-qr-reader"
@@ -62,6 +65,8 @@ const QRCodeScanner:FC<Props> = ({setWorkingState}) => {
             videoRef.current.srcObject = stream
             videoRef.current.play()
             scanQrCode()
+
+            
           }
         })
         .catch((error) => console.error('Error accessing media devices:', error))
@@ -165,6 +170,7 @@ const QRCodeScanner:FC<Props> = ({setWorkingState}) => {
                 }
               });
                setWorkingState(false)
+               
                onScanModal.onClose()
 
 
@@ -180,6 +186,8 @@ const QRCodeScanner:FC<Props> = ({setWorkingState}) => {
            
 
       }
+
+    
     
     
 
@@ -202,6 +210,7 @@ const QRCodeScanner:FC<Props> = ({setWorkingState}) => {
           </Link>
           <Result /> */}
           {/* <Success2 id={} userId={} startedAt={} endedAt={} updatedAt={} /> */}
+          
         </div>
       )}
       {error && <p className=' text-center text-xs text-red-500'>{error}</p>}
