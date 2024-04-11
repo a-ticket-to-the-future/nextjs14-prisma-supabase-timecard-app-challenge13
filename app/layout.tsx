@@ -9,7 +9,7 @@ import SignupModal from "./components/modals/SignupModal";
 import LoginModal from "./components/modals/LoginModal";
 import ProfileModal from "./components/modals/ProfileModal";
 import ToasterContext from "./context/ToasterContext";
-import OnScanModal from "./components/modals/OnScanModal";
+// import OnScanModal from "./components/modals/OnScanModal";
 
 // type setWorkingStateProps = {
 //   setWorkingProps = (state:boolean) => void
