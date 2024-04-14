@@ -82,6 +82,7 @@ const QRCodeScanner:FC<Props> = ({setWorkingState}) => {
             const stream = currentVideoRef.srcObject as MediaStream
             const tracks = stream.getTracks()
             tracks.forEach((track) => track.stop())
+            // tracks[0].stop()
           }
         }
 
@@ -165,8 +166,9 @@ const QRCodeScanner:FC<Props> = ({setWorkingState}) => {
             sound.once("end", () => {
                 if (videoRef.current && videoRef.current.srcObject) {
                   const stream = videoRef.current.srcObject as MediaStream;
-                  const tracks = stream.getTracks();
+                  const tracks = stream.getTracks() //.[0].stop();
                   tracks.forEach((track) => track.stop());
+                  // tracks[0].stop()
                 }
               });
                setWorkingState(false)

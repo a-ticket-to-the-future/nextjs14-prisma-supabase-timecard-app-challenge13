@@ -6,7 +6,7 @@ import { User } from '../types/types';
 import { Timecard } from '../types/types';
 import getCurrentUser from '../actions/getCurrentUser';
 import axios from 'axios';
-import { any, object } from 'zod';
+import { any, object, tuple } from 'zod';
 import moment, { utc } from 'moment';
 import momentTimezone from 'moment-timezone';
 import StopWatch from './stopwatch/StopWatch';
@@ -99,6 +99,10 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [result, setResult] = useState('')
     const router = useRouter()
+    const [isScanned,setIsScanned] = useState(false)
+    const [scanedData, setScanedData] = useState(null)
+    const [qrCodeData, setQrCodeData] = useState("")
+    const [endScanData, setEndScanData] = useState("")
 
 
     // const turnOnCamera = async () => {
@@ -251,6 +255,8 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
             console.log(convertedEndTime.format('YYYY/MM/DD HH:mm:ss'));
             setSavedEndedTime(convertedEndTime.format('YYYY/MM/DD HH:mm:ss'))
 
+
+
             //始まりと終わりの差を計測する
             
             const statedAt = moment(saveStartTime)
@@ -382,6 +388,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
             setIsCameraOn(false)
 
         } else {
+            
             try {
                 const constraints = {
                     video: {
@@ -401,7 +408,9 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                     videoRef.current.play()
                     // await scanQrCode()
                    
-                    scanQrCode()
+                      scanQrCode()
+                     
+
                     
                     // setIsCameraOn(false)
 
@@ -434,50 +443,170 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     
 
     const scanQrCode = async () => {
-
-
-        const sound = new Howl({
-            src:['/sound/scanComplete.mp3'],
-          })
-
-        const canvas = canvasRef.current
-        const video = videoRef.current
-        if(canvas && video ){
-            const context = canvas.getContext('2d')
-            if (context) {
-
-                context.drawImage(video,0,0,canvas.width,canvas.height)
-                const imageData = context.getImageData(0,0,canvas.width,canvas.height)
-                const code = jsQR(imageData.data, imageData.width, imageData.height)
-                if ( code ) {
-                    console.log('QRコードが検出されました', code.data)
+        // if(isCameraOn) return;
+        if(startedData) {
+            const sound = new Howl({
+                src:['/sound/scanComplete.mp3'],
+              })
+              setQrCodeData("")
+            const canvas = canvasRef.current
+            const video = videoRef.current
+            if(canvas && video ){
+                const context = canvas.getContext('2d')
+                if (context) {
     
-                    setResult(code.data)
-                    
-                    const res = await fetch('http://localhost:3000/api/timecard/scanId',{
-                        method:"POST",
-                        headers:{
-                            "Content-Type":"application/json",
-                        },
-                        body:JSON.stringify({code}),
-                    })
-    
-                    const checkedScanData = await res.json();
-    
-                    console.log(checkedScanData);
-                    // scanQrCode()
-                    sound.play()
-                    setIsCameraOn(false)
-                    sound.once("end", () => {
+                    context.drawImage(video,0,0,canvas.width,canvas.height)
+                    const imageData = context.getImageData(0,0,canvas.width,canvas.height)
+                    const code = jsQR(imageData.data, imageData.width, imageData.height)
+                    if ( code ) {
+                        console.log('QRコードが検出されました', code.data)
+                        // setIsScanned(true)
+                       setQrCodeData (code.data)
+                        setWorkingState(false)
+                        if (videoRef.current && videoRef.current.srcObject) {
+                            const stream = videoRef.current.srcObject as MediaStream;
+                            const tracks =  stream.getTracks();
+                            tracks.forEach((track) => track.stop());
+                            videoRef.current.srcObject = null
+                          // tracks[0].stop()
+                          }
+                        sound.play()
+                        sound.once("end", () => {
                             if (videoRef.current && videoRef.current.srcObject) {
                               const stream = videoRef.current.srcObject as MediaStream;
                               const tracks = stream.getTracks();
                               tracks.forEach((track) => track.stop());
+                              videoRef.current.srcObject = null
+                            // tracks[0].stop()
                             }
+                            setIsCameraOn(false)
+    
+                            return
                           });
+        
+                        setResult(code.data)
+                        const codeData = code.data
+                        const startedId = startedData
+                        console.log(startedId)
+
+                        
+                        const res = await fetch('http://localhost:3000/api/timecard/endScanId',{
+                            method:"PUT",
+                            headers:{
+                                "Content-Type":"application/json",
+                            },
+                            body:JSON.stringify({codeData,startedData}),
+                        })
+        
+                        const checkedEndScanData = await res.json();
+        
+                        console.log(checkedEndScanData);
+                        console.log(checkedEndScanData.endScanData.endedAt)
+                        // scanQrCode()
+                        const convertedEndTime = moment(checkedEndScanData.endScanData.endedAt)
+
+                        setSaveEndTime(checkedEndScanData.endScanData.endedAt)
+                // const startTime = convertedTime.add(9,"hours")
+                console.log(convertedEndTime.format('YYYY/MM/DD HH:mm:ss'));
+                setSavedEndedTime(convertedEndTime.format('YYYY/MM/DD HH:mm:ss'))
+                        
+                        // setIsCameraOn(false)
+                        return;   
+                    }
                 }
+                
+                // if(!isScanned) {
+    
+                    setTimeout(scanQrCode,50)
+                // }
+                   
+                
+                // requestAnimationFrame(scanQrCode)
+    
+               
+    
+                    
+                
             }
-            setTimeout(scanQrCode,50)
+            
+        } else if(qrCodeData === "" && startedData ==="") {
+
+            const sound = new Howl({
+                src:['/sound/scanComplete.mp3'],
+              })
+    
+            const canvas = canvasRef.current
+            const video = videoRef.current
+            if(canvas && video ){
+                const context = canvas.getContext('2d')
+                if (context) {
+    
+                    context.drawImage(video,0,0,canvas.width,canvas.height)
+                    const imageData = context.getImageData(0,0,canvas.width,canvas.height)
+                    const code = jsQR(imageData.data, imageData.width, imageData.height)
+                    if ( code ) {
+                        console.log('QRコードが検出されました', code.data)
+                        // setIsScanned(true)
+                       setQrCodeData (code.data)
+                        setWorkingState(true)
+                        if (videoRef.current && videoRef.current.srcObject) {
+                            const stream = videoRef.current.srcObject as MediaStream;
+                            const tracks = stream.getTracks();
+                            tracks.forEach((track) => track.stop());
+                            videoRef.current.srcObject = null
+                          // tracks[0].stop()
+                          }
+                        sound.play()
+                        sound.once("end", () => {
+                            if (videoRef.current && videoRef.current.srcObject) {
+                              const stream = videoRef.current.srcObject as MediaStream;
+                              const tracks = stream.getTracks();
+                              tracks.forEach((track) => track.stop());
+                              videoRef.current.srcObject = null
+                            // tracks[0].stop()
+                            }
+                            setIsCameraOn(false)
+    
+                            return
+                          });
+        
+                        setResult(code.data)
+                        const codeData = code.data
+                        
+                        const res = await fetch('http://localhost:3000/api/timecard/scanId',{
+                            method:"POST",
+                            headers:{
+                                "Content-Type":"application/json",
+                            },
+                            body:JSON.stringify({codeData}),
+                        })
+        
+                        const checkedScanData = await res.json();
+        
+                        console.log(checkedScanData);
+                        // scanQrCode()
+                        setStartedData(checkedScanData);
+                        // setIsCameraOn(false)
+
+                        // setQrCodeData("")
+                        setQrCodeData("")
+                        return;   
+                    }
+                }
+                
+                // if(!isScanned) {
+    
+                    setTimeout(scanQrCode,50)
+                // }
+                   
+                
+                // requestAnimationFrame(scanQrCode)
+    
+               
+    
+                    
+                
+            }
         }
     }
     
@@ -503,6 +632,21 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     //     }
 
     // },[])
+
+    useEffect(() => {
+        if(isCameraOn && qrCodeData === ""){
+            handleCameraToggle()
+            setWorkingState(true)
+            setStartedData("")
+        } else if(isCameraOn && qrCodeData !== "" && startedData !== ""){
+            handleCameraToggle()
+            console.log("２度目はこっちの処理を走らせたい") 
+            return;
+        }
+    },[isCameraOn])
+
+
+
     
 
 

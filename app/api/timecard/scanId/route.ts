@@ -20,8 +20,8 @@ export async function POST (req:NextRequest, res:NextResponse) {
     try {
 
         const data = await req.json();
-        console.log(data.userIdData);
-        const userId = data.userIdData
+        // console.log(data.codeData);
+        const userId = data.codeData
 
     //         const checkUserId = await prisma.timecard.findUnique({
     //             where:{
@@ -45,7 +45,7 @@ export async function POST (req:NextRequest, res:NextResponse) {
                 startedAt: new Date(),
             },
         })
-        console.log({checkUserId})
+        // console.log({checkUserId})
         return NextResponse.json({checkUserId})
     
     } catch (error) {
