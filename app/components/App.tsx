@@ -103,6 +103,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     const [scanedData, setScanedData] = useState(null)
     const [qrCodeData, setQrCodeData] = useState("")
     const [endScanData, setEndScanData] = useState("")
+    const [cameraOn, setCameraOn] = useState(false)
 
 
     // const turnOnCamera = async () => {
@@ -377,7 +378,10 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     }
 
     
-    const handleCameraToggle = async () => {
+    const handleWorkingStart = async () => {
+
+        setCameraOn(true)
+
         if(isCameraOn){
 
             if(videoRef.current && videoRef.current.srcObject){
@@ -386,6 +390,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                 videoRef.current.srcObject = null
             } 
             setIsCameraOn(false)
+            console.log("こっちが動いているよ")
 
         } else {
             
@@ -407,8 +412,104 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                     videoRef.current.srcObject = stream
                     videoRef.current.play()
                     // await scanQrCode()
-                   
-                      scanQrCode()
+                      setCameraOn(true)
+                      
+                        // try {
+                        //     if(cameraOn){
+
+                        //       scanQrCode()
+                        //     } else {
+                        //         console.log('なぜかこっちになった')
+                        //     }
+                        // } catch (error) {
+                        //     console.log('カメラが起動していません')
+                        // }
+                        scanQrCode()
+                      
+
+                      
+                     
+
+                    
+                    // setIsCameraOn(false)
+
+                     
+
+                //  setTimeout(scanQrCode, 100)
+                //  requestAnimationFrame(scanQrCode)
+
+                //  setIsCameraOn(false)
+                }
+
+                
+                // sound.play()
+                    
+                //     sound.once("end", () => {
+                //    if (videoRef.current && videoRef.current.srcObject) {
+                //      const stream = videoRef.current.srcObject as MediaStream;
+                //      const tracks = stream.getTracks();
+                //      tracks.forEach((track) => track.stop());
+                //    }
+                //  });
+
+            } catch (error) {
+                console.error('カメラのアクセスに失敗しました',error)
+            }
+
+        } 
+    }
+
+    
+    const handleWorkingEnd = async () => {
+
+        setCameraOn(true)
+
+        if(isCameraOn){
+
+            if(videoRef.current && videoRef.current.srcObject){
+                const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
+                tracks.forEach(track => track.stop());
+                videoRef.current.srcObject = null
+            } 
+            setIsCameraOn(false)
+            console.log("こっちが動いているよ")
+
+        } else {
+            
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 300},
+                        height: { ideal:300},
+                    },
+                }
+
+                const sound = new Howl({
+                    src:['/sound/scanComplete.mp3'],
+                  })
+
+                const stream = await navigator.mediaDevices.getUserMedia(constraints)
+                if(videoRef.current){
+                    videoRef.current.srcObject = stream
+                    videoRef.current.play()
+                    // await scanQrCode()
+                      setCameraOn(true)
+                      
+                        // try {
+                        //     if(cameraOn){
+
+                        //       scanQrCode()
+                        //     } else {
+                        //         console.log('なぜかこっちになった')
+                        //     }
+                        // } catch (error) {
+                        //     console.log('カメラが起動していません')
+                        // }
+                        scanQrCode()
+                      
+
+                      
                      
 
                     
@@ -444,7 +545,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
 
     const scanQrCode = async () => {
         // if(isCameraOn) return;
-        if(startedData) {
+        if(startedData && workingState ) {
             const sound = new Howl({
                 src:['/sound/scanComplete.mp3'],
               })
@@ -529,7 +630,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                 
             }
             
-        } else if(qrCodeData === "" && startedData ==="") {
+        } else if(qrCodeData === "" && startedData === "" && !workingState) {
 
             const sound = new Howl({
                 src:['/sound/scanComplete.mp3'],
@@ -589,7 +690,10 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                         // setIsCameraOn(false)
 
                         // setQrCodeData("")
+                        setIsScanned(false)
                         setQrCodeData("")
+                        setCameraOn(false)
+
                         return;   
                     }
                 }
@@ -633,13 +737,44 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
 
     // },[])
 
+    const handleCameraOff = () => {
+
+        if(isCameraOn){
+
+            if (videoRef.current && videoRef.current.srcObject) {
+                const stream = videoRef.current.srcObject as MediaStream;
+                const tracks = stream.getTracks();
+                tracks.forEach((track) => track.stop());
+                videoRef.current.srcObject = null
+              // tracks[0].stop()
+              setIsCameraOn(false)
+              setCameraOn(false)
+              }
+
+            
+            
+            
+            
+            //こちらでは動かなかった
+            // if(videoRef.current && videoRef.current.srcObject){
+            //     const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
+            //     tracks.forEach(track => track.stop());
+            //     videoRef.current.srcObject = null
+            // } 
+            // setIsCameraOn(false)
+
+
+            }
+        }
+
+
     useEffect(() => {
-        if(isCameraOn && qrCodeData === ""){
-            handleCameraToggle()
+        if(isCameraOn && qrCodeData === "" && cameraOn && !workingState){
+            handleWorkingStart()
             setWorkingState(true)
             setStartedData("")
-        } else if(isCameraOn && qrCodeData !== "" && startedData !== ""){
-            handleCameraToggle()
+        } else if(isCameraOn && qrCodeData !== "" && startedData !== "" && cameraOn !== false && workingState){
+            // handleCameraToggle()
             console.log("２度目はこっちの処理を走らせたい") 
             return;
         }
@@ -725,16 +860,61 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                         </div>
                     */}
 
+                    <div className='flex'>
+                    
+                    <div className=' flex flex-col'>
                     <div>
                         <button 
-                                onClick={handleCameraToggle}
-                                className=' w-[200px] h-[50px] bg-green-400 border-gray-400 border-2 mt-5 ml-[50px] text-slate-50 text-center pt-3 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' >
-                            {isCameraOn ? 'カメラをオフにする' : "カメラをオンにする"}
+                                onClick={handleWorkingStart}
+                                className=' w-[200px] h-[50px] bg-green-400 border-gray-400 border-2 mt-5 ml-[50px] text-slate-50 text-center pt-2 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' >
+                            {/* {isCameraOn ? 'カメラをオフにする' : "カメラをオンにする"} */}
                             {/* カメラをオフにする */}
+                            仕事を開始する
                         </button>
                         <video ref={videoRef} autoPlay playsInline muted style={{width:'100%'}} />
                         <canvas ref={canvasRef} width="300" height="300" style={{display:"none"}} />
                         {/* <button onClick={startCamera}>カメラスタート</button> */}
+                    </div>
+                    <div>
+                        <button 
+                                onClick={handleCameraOff}
+                                className=' w-[200px] h-[50px] bg-gray-400 border-8 border-green-400 mt-5  ml-[50px] text-slate-50 text-center pt-2 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' >
+                            カメラをオフにする
+                            {/* カメラをオフにする */}
+                        </button>
+                        {/* <video ref={videoRef} autoPlay playsInline muted style={{width:'100%'}} />
+                        <canvas ref={canvasRef} width="300" height="300" style={{display:"none"}} /> */}
+                        {/* <button onClick={startCamera}>カメラスタート</button> */}
+                    </div>
+                    </div>
+                    <div className=' flex flex-col'>
+                    <div>
+                        <button 
+                                onClick={handleWorkingEnd}
+                                className=' w-[200px] h-[50px] bg-blue-400 border-gray-400 border-2 mt-5 ml-[50px] text-slate-50 text-center pt-2 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' >
+                            {/* {isCameraOn ? 'カメラをオフにする' : "カメラをオンにする"} */}
+                            {/* カメラをオフにする */}
+                            仕事を終了する
+                        </button>
+                        <video ref={videoRef} autoPlay playsInline muted style={{width:'100%'}} />
+                        <canvas ref={canvasRef} width="300" height="300" style={{display:"none"}} />
+                        {/* <button onClick={startCamera}>カメラスタート</button> */}
+                    </div>
+                    <div>
+                        <button 
+                                onClick={handleCameraOff}
+                                className=' w-[200px] h-[50px] bg-gray-400 border-8 border-blue-400 mt-5 ml-[50px] text-slate-50 text-center pt-2 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' >
+                            カメラをオフにする
+                            {/* カメラをオフにする */}
+                        </button>
+                        {/* <video ref={videoRef} autoPlay playsInline muted style={{width:'100%'}} />
+                        <canvas ref={canvasRef} width="300" height="300" style={{display:"none"}} /> */}
+                        {/* <button onClick={startCamera}>カメラスタート</button> */}
+                    </div>
+                    </div>
+
+                    
+
                     </div>
                     
                     </div>
