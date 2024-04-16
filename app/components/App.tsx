@@ -105,6 +105,8 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     const [endScanData, setEndScanData] = useState("")
     const [cameraOn, setCameraOn] = useState(false)
     const [isCameraReady, setIsCameraReady] = useState(false)
+    const [isTimecardEndReady, setIsTimecardEndReady] = useState(false)
+    const [endTImeScan,setEndTimeScan] = useState(false)
 
 
     // const turnOnCamera = async () => {
@@ -285,7 +287,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                 headers: {
                     "Content-Type":"application/json",
                 },
-                body:JSON.stringify({userId,formattedTime})
+                body:JSON.stringify({startedData,formattedTime})
 
             })
 
@@ -476,7 +478,10 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                             
                                             console.log(checkedScanData);
                                             // scanQrCode()
+                                            setUserId(checkedScanData.id)
                                             setStartedData(checkedScanData);
+                                            const convertedStartTime = moment(checkedScanData.startedAt)
+                                            setSaveStartTime(convertedStartTime.format('YYYY/MM/DD HH:mm:ss'))
                                             // setIsCameraOn(false)
                     
                                             // setQrCodeData("")
@@ -618,6 +623,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
             }
 
             setIsCameraReady(true)
+            setIsTimecardEndReady(true)
 
     }
 }
@@ -631,7 +637,47 @@ const handleWorkEnd = async () => {
         cameraStart();
     }
 }
+
+    const qrCodeScan = async () => {
+        const sound = new Howl({
+            src:['/sound/scanComplete.mp3'],
+          })
+        
+          //2024年4月15日 一旦コメントアウト
+        const canvas = canvasRef.current
+        const video = videoRef.current
+        if(canvas && video ){
+            const context = canvas.getContext('2d')
+            if (context) {
+
+                context.drawImage(video,0,0,canvas.width,canvas.height)
+                const imageData = context.getImageData(0,0,canvas.width,canvas.height)
+                const code = jsQR(imageData.data, imageData.width, imageData.height)
+                if ( code ) {
+                    console.log('QRコードが検出されました', code.data)
+                    // setIsScanned(true)
+                   setQrCodeData (code.data)
+                    setWorkingState(false)
+                    // if (videoRef.current && videoRef.current.srcObject) {
+                    //     const stream = videoRef.current.srcObject as MediaStream;
+                    //     const tracks =  stream.getTracks();
+                    //     tracks.forEach((track) => track.stop());
+                    //     videoRef.current.srcObject = null
+                    //   // tracks[0].stop()
+                    //   }
+                    
     
+                    setResult(code.data)
+                    const codeData = code.data
+
+                    setEndTimeScan(true)
+
+                }
+            }
+        }
+
+    }
+     
     const handleWorkingEnd = async () => {
 
         setCameraOn(true)
@@ -889,6 +935,19 @@ const handleWorkEnd = async () => {
         
 
     },[isCameraReady])
+
+    useEffect(()=> {
+        if(isTimecardEndReady === true) {
+            qrCodeScan()
+        }
+
+    },[isTimecardEndReady])
+
+    useEffect(()=> {
+        if(endTImeScan === true){
+            timeCardEnd()
+        }
+    },[endTImeScan])
 
 
 
