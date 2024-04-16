@@ -8,17 +8,17 @@ export async function PUT(req: NextRequest, res:NextResponse) {
 
     try{
 
-        const {userId,savedStatedTime} = await req.json();
+        const {startedData} = await req.json();
         // console.log({startedTime,startedData})
         // const userId = startedData.startedAt.id
-        console.log(userId,savedStatedTime)
+        console.log(startedData.checkUserId.id)
     //     const currentUser = await getCurrentUser()
     //     const userId = currentUser?.id
-
+        const userId = startedData.checkUserId
     //     ここから下は動いた
         const endedTime = await prisma.timecard.update({
             where:{
-                id:userId
+                id:userId.id
             },
             data: {
                 // userId:userId,

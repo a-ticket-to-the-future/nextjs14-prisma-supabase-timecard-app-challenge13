@@ -104,6 +104,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     const [qrCodeData, setQrCodeData] = useState("")
     const [endScanData, setEndScanData] = useState("")
     const [cameraOn, setCameraOn] = useState(false)
+    const [isCameraReady, setIsCameraReady] = useState(false)
 
 
     // const turnOnCamera = async () => {
@@ -230,6 +231,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
         //     setWorkingState(false)
 
         // },[workingState])
+        
 
         if (workingState) {
 
@@ -245,7 +247,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                 headers: {
                     "Content-Type": "application/json",   
                 },
-                body:JSON.stringify({userId,savedStartedTime})
+                body:JSON.stringify({userId,savedStartedTime,startedData})
             });
             // console.log(res.body)
             const data = await res.json();
@@ -552,6 +554,83 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
         } 
     }
 
+    // const qrCodeScan = () => {
+    //     const canvas = canvasRef.current
+    //                         const video = videoRef.current
+    //                         if(canvas && video ){
+    //                             const context = canvas.getContext('2d')
+    //                             if (context) {
+                    
+    //                                 context.drawImage(video,0,0,canvas.width,canvas.height)
+    //                                 const imageData = context.getImageData(0,0,canvas.width,canvas.height)
+    //                                 const code = jsQR(imageData.data, imageData.width, imageData.height)
+    //                                 if ( code ) {
+    //                                     console.log('QRコードが検出されました', code.data)
+    //                                     // setIsScanned(true)
+    //                                    setQrCodeData (code.data)
+    //                                     setWorkingState(false)
+    //                                     // if (videoRef.current && videoRef.current.srcObject) {
+    //                                     //     const stream = videoRef.current.srcObject as MediaStream;
+    //                                     //     const tracks =  stream.getTracks();
+    //                                     //     tracks.forEach((track) => track.stop());
+    //                                     //     videoRef.current.srcObject = null
+    //                                     //   // tracks[0].stop()
+    //                                     //   }
+                                        
+                        
+    //                                     setResult(code.data)
+    //                                     const codeData = code.data
+    //                                     const startedId = startedData
+    //                                     console.log(startedId)
+    //                                 }
+    //                             }
+    //                             }
+    // }
+
+    const cameraStart = async () => {
+
+        const constraints = {
+            video: {
+                facingMode: 'environment',
+                width: { ideal: 300},
+                height: { ideal:300},
+            },
+        }
+
+        const sound = new Howl({
+            src:['/sound/scanComplete.mp3'],
+          })
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints)
+        if(videoRef.current){
+            videoRef.current.srcObject = stream
+            videoRef.current.play()
+            // await scanQrCode()
+            setQrCodeData("")
+            setIsScanned(false)
+            console.log(qrCodeData)
+            console.log(scanedData)
+            if (isCameraOn && videoRef.current && videoRef.current.srcObject) {
+                const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+                tracks.forEach(track => track.stop());
+                videoRef.current.srcObject = null;
+                setIsCameraOn(false);
+            }
+
+            setIsCameraReady(true)
+
+    }
+}
+
+//　handleWorkEndとして処理を記述し直す//2024年4月16日
+const handleWorkEnd = async () => {
+    setIsCameraReady(true)
+    if (isCameraReady === false) {
+        handleCameraOff()
+    } else if(isCameraReady === true) {
+        cameraStart();
+    }
+}
     
     const handleWorkingEnd = async () => {
 
@@ -587,14 +666,34 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                     videoRef.current.srcObject = stream
                     videoRef.current.play()
                     // await scanQrCode()
+                    setQrCodeData("")
+                    setIsScanned(false)
+                    console.log(qrCodeData)
+                    console.log(scanedData)
+                    if (isCameraOn && videoRef.current && videoRef.current.srcObject) {
+                        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+                        tracks.forEach(track => track.stop());
+                        videoRef.current.srcObject = null;
+                        setIsCameraOn(false);
+                    }
 
+                    setIsCameraReady(true)
                     const endScan = async () => {
+                        setQrCodeData("")
+                        setIsScanned(false)
+                        if (isCameraOn && videoRef.current && videoRef.current.srcObject) {
+                            const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+                            tracks.forEach(track => track.stop());
+                            videoRef.current.srcObject = null;
+                            setIsCameraOn(false);
+                        }
 
                         if(startedData && workingState ) {
                             const sound = new Howl({
                                 src:['/sound/scanComplete.mp3'],
                               })
-                              setQrCodeData("")
+                            
+                              //2024年4月15日 一旦コメントアウト
                             const canvas = canvasRef.current
                             const video = videoRef.current
                             if(canvas && video ){
@@ -622,7 +721,9 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                                         const codeData = code.data
                                         const startedId = startedData
                                         console.log(startedId)
-                
+
+                                        //2024年4月15日　ここまでコメントアウト
+                                        // qrCodeScan()
                                         
                                         const res = await fetch('http://localhost:3000/api/timecard/endScanId',{
                                             method:"PUT",
@@ -664,6 +765,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                             }
                             
                         }
+                        
                         const timeoutId2 = setTimeout(endScan,50)
                         // console.log(timeoutId2)
                        
@@ -688,7 +790,16 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
 
                     
                     // setIsCameraOn(false)
-
+                    if (isCameraOn && videoRef.current && videoRef.current.srcObject) {
+                        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+                        tracks.forEach(track => track.stop());
+                        videoRef.current.srcObject = null;
+                        setIsCameraOn(false);
+                    }
+                    setQrCodeData("")
+                    setIsScanned(false)
+                    setWorkingState(false)
+                    setQrCodeData("")
                     await endScan() 
                     sound.play()
                     sound.once("end", () => {
@@ -729,204 +840,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     }
     
     
-    //　2024年4月14日ここからコメントアウト
-    // const scanQrCode = async () => {
-    //     // if(isCameraOn) return;
-    //     if(startedData && workingState ) {
-    //         const sound = new Howl({
-    //             src:['/sound/scanComplete.mp3'],
-    //           })
-    //           setQrCodeData("")
-    //         const canvas = canvasRef.current
-    //         const video = videoRef.current
-    //         if(canvas && video ){
-    //             const context = canvas.getContext('2d')
-    //             if (context) {
     
-    //                 context.drawImage(video,0,0,canvas.width,canvas.height)
-    //                 const imageData = context.getImageData(0,0,canvas.width,canvas.height)
-    //                 const code = jsQR(imageData.data, imageData.width, imageData.height)
-    //                 if ( code ) {
-    //                     console.log('QRコードが検出されました', code.data)
-    //                     // setIsScanned(true)
-    //                    setQrCodeData (code.data)
-    //                     setWorkingState(false)
-    //                     if (videoRef.current && videoRef.current.srcObject) {
-    //                         const stream = videoRef.current.srcObject as MediaStream;
-    //                         const tracks =  stream.getTracks();
-    //                         tracks.forEach((track) => track.stop());
-    //                         videoRef.current.srcObject = null
-    //                       // tracks[0].stop()
-    //                       }
-    //                     sound.play()
-    //                     sound.once("end", () => {
-    //                         if (videoRef.current && videoRef.current.srcObject) {
-    //                           const stream = videoRef.current.srcObject as MediaStream;
-    //                           const tracks = stream.getTracks();
-    //                           tracks.forEach((track) => track.stop());
-    //                           videoRef.current.srcObject = null
-    //                         // tracks[0].stop()
-    //                         }
-    //                         setIsCameraOn(false)
-    
-    //                         return
-    //                       });
-        
-    //                     setResult(code.data)
-    //                     const codeData = code.data
-    //                     const startedId = startedData
-    //                     console.log(startedId)
-
-                        
-    //                     const res = await fetch('http://localhost:3000/api/timecard/endScanId',{
-    //                         method:"PUT",
-    //                         headers:{
-    //                             "Content-Type":"application/json",
-    //                         },
-    //                         body:JSON.stringify({codeData,startedData}),
-    //                     })
-        
-    //                     const checkedEndScanData = await res.json();
-        
-    //                     console.log(checkedEndScanData);
-    //                     console.log(checkedEndScanData.endScanData.endedAt)
-    //                     // scanQrCode()
-    //                     const convertedEndTime = moment(checkedEndScanData.endScanData.endedAt)
-
-    //                     setSaveEndTime(checkedEndScanData.endScanData.endedAt)
-    //             // const startTime = convertedTime.add(9,"hours")
-    //             console.log(convertedEndTime.format('YYYY/MM/DD HH:mm:ss'));
-    //             setSavedEndedTime(convertedEndTime.format('YYYY/MM/DD HH:mm:ss'))
-                        
-    //                     // setIsCameraOn(false)
-    //                     return;   
-    //                 }
-    //             }
-                
-    //             // if(!isScanned) {
-    
-    //                 setTimeout(scanQrCode,50)
-    //             // }
-                   
-                
-    //             // requestAnimationFrame(scanQrCode)
-    
-               
-    
-                    
-                
-    //         }
-            
-    //     } else if(qrCodeData === "" && startedData === "" && !workingState) {
-
-    //         const sound = new Howl({
-    //             src:['/sound/scanComplete.mp3'],
-    //           })
-    
-    //         const canvas = canvasRef.current
-    //         const video = videoRef.current
-    //         if(canvas && video ){
-    //             const context = canvas.getContext('2d')
-    //             if (context) {
-    
-    //                 context.drawImage(video,0,0,canvas.width,canvas.height)
-    //                 const imageData = context.getImageData(0,0,canvas.width,canvas.height)
-    //                 const code = jsQR(imageData.data, imageData.width, imageData.height)
-    //                 if ( code ) {
-    //                     console.log('QRコードが検出されました', code.data)
-    //                     // setIsScanned(true)
-    //                    setQrCodeData (code.data)
-    //                     setWorkingState(true)
-    //                     if (videoRef.current && videoRef.current.srcObject) {
-    //                         const stream = videoRef.current.srcObject as MediaStream;
-    //                         const tracks = stream.getTracks();
-    //                         tracks.forEach((track) => track.stop());
-    //                         videoRef.current.srcObject = null
-    //                       // tracks[0].stop()
-    //                       }
-    //                     sound.play()
-    //                     sound.once("end", () => {
-    //                         if (videoRef.current && videoRef.current.srcObject) {
-    //                           const stream = videoRef.current.srcObject as MediaStream;
-    //                           const tracks = stream.getTracks();
-    //                           tracks.forEach((track) => track.stop());
-    //                           videoRef.current.srcObject = null
-    //                         // tracks[0].stop()
-    //                         }
-    //                         setIsCameraOn(false)
-    
-    //                         return
-    //                       });
-        
-    //                     setResult(code.data)
-    //                     const codeData = code.data
-                        
-    //                     const res = await fetch('http://localhost:3000/api/timecard/scanId',{
-    //                         method:"POST",
-    //                         headers:{
-    //                             "Content-Type":"application/json",
-    //                         },
-    //                         body:JSON.stringify({codeData}),
-    //                     })
-        
-    //                     const checkedScanData = await res.json();
-        
-    //                     console.log(checkedScanData);
-    //                     // scanQrCode()
-    //                     setStartedData(checkedScanData);
-    //                     // setIsCameraOn(false)
-
-    //                     // setQrCodeData("")
-    //                     setIsScanned(false)
-    //                     setQrCodeData("")
-    //                     setCameraOn(false)
-
-    //                     return;   
-    //                 }
-    //             }
-                
-    //             // if(!isScanned) {
-    
-    //                 setTimeout(scanQrCode,50)
-    //             // }
-                   
-                
-    //             // requestAnimationFrame(scanQrCode)
-    
-               
-    
-                    
-                
-    //         }
-    //     }
-    // }
-    //2024年4月14日ここまでコメントアウト
-    
-    
-    
-    
-    // useEffect(() => {
-    //     if(isCameraOn) {
-
-    //         scanQrCode()
-    //     } else {
-
-    //         if( videoRef.current && videoRef.current.srcObject){
-    //             const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
-
-    //             tracks.forEach(track => track.stop()) 
-    //          }
-
-
-    //     }
-    //     return () => {
-    //         if(videoRef.current && videoRef.current.srcObject) {
-    //             const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
-    //             tracks.forEach((track) => track.stop())
-    //         }
-    //     }
-
-    // },[])
 
     const handleCameraOff = () => {
 
@@ -945,31 +859,36 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
             
             
             
-            
-            //こちらでは動かなかった
-            // if(videoRef.current && videoRef.current.srcObject){
-            //     const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
-            //     tracks.forEach(track => track.stop());
-            //     videoRef.current.srcObject = null
-            // } 
-            // setIsCameraOn(false)
+           
 
 
             }
         }
 
 
-    useEffect(() => {
-        if(isCameraOn && qrCodeData === "" && cameraOn && !workingState){
-            handleWorkingStart()
-            setWorkingState(true)
-            setStartedData("")
-        } else if(isCameraOn && qrCodeData !== "" && startedData !== "" && cameraOn !== false && workingState){
-            handleWorkingEnd()
-            console.log("２度目はこっちの処理を走らせたい") 
+    // useEffect(() => {
+    //     if(isCameraOn && qrCodeData === "" && cameraOn && !workingState){
+    //         handleWorkingStart()
+    //         setWorkingState(true)
+    //         setStartedData("")
+    //     } else if(isCameraOn && qrCodeData !== "" && startedData !== "" && cameraOn !== false && workingState){
+    //         handleWorkingEnd()
+    //         console.log("２度目はこっちの処理を走らせたい") 
             
+    //     }
+    // },[isCameraOn])
+
+
+    useEffect(() => {
+        if(isCameraReady === false){
+            handleCameraOff()
+        } else {
+
+            handleWorkEnd()
         }
-    },[isCameraOn])
+        
+
+    },[isCameraReady])
 
 
 
@@ -1081,7 +1000,9 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                     <div className=' flex flex-col'>
                     <div>
                         <button 
-                                onClick={handleWorkingEnd}
+                                onClick={handleWorkEnd}
+                                //いったん、handleWorkEndするためコメントアウト
+                                // onClick={handleWorkingEnd}
                                 className=' w-[200px] h-[50px] bg-blue-400 border-gray-400 border-2 mt-5 ml-[50px] text-slate-50 text-center pt-2 font-bold rounded-md  hover:scale-105 active:scale-95 cursor-pointer' >
                             {/* {isCameraOn ? 'カメラをオフにする' : "カメラをオンにする"} */}
                             {/* カメラをオフにする */}
