@@ -11,7 +11,7 @@ export async function PUT(req: NextRequest, res:NextResponse) {
         const {startedData} = await req.json();
         // console.log({startedTime,startedData})
         // const userId = startedData.startedAt.id
-        console.log(startedData.checkUserId.id)
+        // console.log(startedData.checkUserId.id)
     //     const currentUser = await getCurrentUser()
     //     const userId = currentUser?.id
         const userId = startedData.checkUserId
@@ -26,7 +26,7 @@ export async function PUT(req: NextRequest, res:NextResponse) {
                 
             },
         });
-        console.log(endedTime);
+        // console.log(endedTime);
         return  NextResponse.json({endedTime})
 
        } catch (error) {
