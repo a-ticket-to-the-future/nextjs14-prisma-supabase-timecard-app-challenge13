@@ -31,6 +31,9 @@ import QRCodeScanner from './qrcodeScanner/QrCodeScanner';
 import jsQR from 'jsqr';
 import {Howl,Howler} from 'howler';
 import { useRouter } from 'next/navigation'
+// import { QRCode } from 'qrcode.react';
+// import { v4 as uuidv4 } from 'uuidv4'; // uuidv4 ライブラリの場合
+
 
 
 
@@ -58,7 +61,11 @@ export interface ModalType {
 
 // const QRCode = React.lazy(() => import('next-qrcode'));
 
+interface Canvas {
+    willReadFrequently?: boolean;
+  }
 
+  
 
 const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
 
@@ -106,9 +113,17 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     const [cameraOn, setCameraOn] = useState(false)
     const [isCameraReady, setIsCameraReady] = useState(false)
     const [isTimecardEndReady, setIsTimecardEndReady] = useState(false)
-    const [endTImeScan,setEndTimeScan] = useState(false)
+    const [endTimeScan,setEndTimeScan] = useState(false)
+    const [cameraAndQrcode, setCameraAndQrcode] = useState(false)
+    const [qrReadCount, setQrReadCount] = useState(0)
+    const [qrData, setQrData] = useState('')
+    // const [code3, setCode3] = useState<QRCode | null>(null)
+    const [currentTime, setCurrentTime] = useState(0)
+    const [lastScanTime, setLastScanTime] = useState(0)
+    const [nextQrCodeData, setNextQrCodeData] = useState("")
 
-
+    // type QRCode = any
+    
     // const turnOnCamera = async () => {
     //     try {
     //         const stream = await navigator.mediaDevices.getUserMedia({video: true})
@@ -297,6 +312,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
             const receivedSubTotal = data2.subTotal.subTotal
             console.log(receivedSubTotal);
             setSubTotal(receivedSubTotal);
+            setCameraOn(false)
 
             
         } else {
@@ -397,7 +413,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
             console.log("こっちが動いているよ")
 
         } else {
-            
+            if(qrReadCount === 0) {
             try {
                 const constraints = {
                     video: {
@@ -432,12 +448,19 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                                 const video = videoRef.current
                                 if(canvas && video ){
                                     const context = canvas.getContext('2d')
+                                    setCurrentTime(Date.now())
                                     if (context) {
-                        
+                                        
+                                        context.clearRect(0, 0, canvas.width, canvas.height);
+                                        
                                         context.drawImage(video,0,0,canvas.width,canvas.height)
+                                        // console.log(context)
                                         const imageData = context.getImageData(0,0,canvas.width,canvas.height)
-                                        const code = jsQR(imageData.data, imageData.width, imageData.height)
+                                         const  code =jsQR(imageData.data, imageData.width, imageData.height)
+                                         
+                                         
                                         if ( code ) {
+                                            
                                             console.log('QRコードが検出されました', code.data)
                                             // setIsScanned(true)
                                            setQrCodeData (code.data)
@@ -488,9 +511,12 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                                             setIsScanned(false)
                                             setQrCodeData("")
                                             setCameraOn(false)
-                    
+                                            setQrReadCount(qrReadCount + 1);
                                             return;   
                                         }
+
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+
                                     }
                                     
                                     // if(!isScanned) {
@@ -503,7 +529,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                         
                                    
                         
-                                        
+                                         
                                     
                                 }
                             }
@@ -523,6 +549,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                         setIsScanned(false)
                                             setQrCodeData("")
                                             setCameraOn(false)
+                                            setLastScanTime(currentTime)
                        
                     }
                       
@@ -558,6 +585,7 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
 
         } 
     }
+}
 
     // const qrCodeScan = () => {
     //     const canvas = canvasRef.current
@@ -611,19 +639,16 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
             videoRef.current.srcObject = stream
             videoRef.current.play()
             // await scanQrCode()
-            setQrCodeData("")
-            setIsScanned(false)
-            console.log(qrCodeData)
-            console.log(scanedData)
-            if (isCameraOn && videoRef.current && videoRef.current.srcObject) {
-                const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-                tracks.forEach(track => track.stop());
-                videoRef.current.srcObject = null;
-                setIsCameraOn(false);
-            }
+            
+            // console.log(qrCodeData)
+            // console.log(scanedData)
+            
 
             setIsCameraReady(true)
             setIsTimecardEndReady(true)
+            
+            await qrCodeScan()
+            
 
     }
 }
@@ -635,46 +660,111 @@ const handleWorkEnd = async () => {
         handleCameraOff()
     } else if(isCameraReady === true) {
         cameraStart();
+        setCameraAndQrcode(true)
+        
     }
 }
 
+
+//
     const qrCodeScan = async () => {
+
         const sound = new Howl({
             src:['/sound/scanComplete.mp3'],
           })
         
-          //2024年4月15日 一旦コメントアウト
-        const canvas = canvasRef.current
-        const video = videoRef.current
-        if(canvas && video ){
-            const context = canvas.getContext('2d')
-            if (context) {
+            
+            
 
-                context.drawImage(video,0,0,canvas.width,canvas.height)
-                const imageData = context.getImageData(0,0,canvas.width,canvas.height)
-                const code = jsQR(imageData.data, imageData.width, imageData.height)
-                if ( code ) {
-                    console.log('QRコードが検出されました', code.data)
-                    // setIsScanned(true)
-                   setQrCodeData (code.data)
-                    setWorkingState(false)
-                    // if (videoRef.current && videoRef.current.srcObject) {
-                    //     const stream = videoRef.current.srcObject as MediaStream;
-                    //     const tracks =  stream.getTracks();
-                    //     tracks.forEach((track) => track.stop());
-                    //     videoRef.current.srcObject = null
-                    //   // tracks[0].stop()
-                    //   }
+
+              
+              //2024年4月15日 一旦コメントアウト
+            const canvas2 = canvasRef.current
+            const video2 = videoRef.current
+            if(canvas2 && video2 ){
+                const endContext = canvas2.getContext('2d')
+                // const uniqueIdntifier = uuidv4()
+                const currentTime = Date.now()
+                
+                
+                if (endContext) {
+                    endContext.clearRect(0, 0, canvas2.width, canvas2.height);
                     
-    
-                    setResult(code.data)
-                    const codeData = code.data
+                    endContext.drawImage(video2,0,0,canvas2.width,canvas2.height)
+                    // console.log(endContext)
+                    const imageData2 = endContext.getImageData(0,0,canvas2.width,canvas2.height)
+                    console.log("qrCodeScanの中のimageData2",imageData2)
+                    //このconsole.logまでは表示されている。この先の処理が行えていない。
+                    //ただ、カメラは起動中のまま読み込むのをまっているような状態になっていた
+                    
+                    
+                    const endCode =  jsQR(imageData2.data, imageData2.width, imageData2.height)
+                    if ( endCode ) {
+                        const scannedCodeData = endCode.data
+                        const timeDifference = currentTime - lastScanTime;
 
-                    setEndTimeScan(true)
+                        if(timeDifference === 0){
 
-                }
+                            console.log("同じ時刻に２度同じQRコードを読み込んでいます。")
+                            return;
+
+                        }else {
+
+                            // setCode(endCode)
+                            console.log('2度目のQRコードが検出されました', scannedCodeData)
+                            console.log(scannedCodeData)
+                            // setIsScanned(true)
+                        //    setQrCodeData (endCode.data) 
+                            setNextQrCodeData(scannedCodeData)
+                            setWorkingState(false)
+                            // if (videoRef.current && videoRef.current.srcObject) {
+                            //     const stream = videoRef.current.srcObject as MediaStream;
+                            //     const tracks =  stream.getTracks();
+                            //     tracks.forEach((track) => track.stop());
+                            //     videoRef.current.srcObject = null
+                            //   // tracks[0].stop()
+                            //   }
+                            
+                            
+        
+                            setResult(endCode.data)
+                            const codeData = endCode.data
+                            console.log(codeData)
+                            setEndTimeScan(true)
+                            setCameraAndQrcode(true)
+
+
+                             //ここからDBへの保存と計算と表示のための記述を予定
+                             
+                             console.log('いったん確認する')                            
+                             
+                             sound.play()
+                             sound.once("end", () => {
+                                if (videoRef.current && videoRef.current.srcObject) {
+                                  const stream = videoRef.current.srcObject as MediaStream;
+                                  const tracks = stream.getTracks();
+                                  tracks.forEach((track) => track.stop());
+                                  videoRef.current.srcObject = null
+                                // tracks[0].stop()
+                                }
+                                setIsCameraOn(false)
+                            
+                                return;
+                            })
+        
+                        }
+                        endContext.clearRect(0, 0, canvas2.width, canvas2.height);
+                        
+                    }
+              
+        
+                            
+                            setIsCameraOn(false)
+                            console.log()
             }
-        }
+            
+           
+                        }
 
     }
      
@@ -931,25 +1021,48 @@ const handleWorkEnd = async () => {
         } else {
 
             handleWorkEnd()
+            console.log('handleWorkEndが読み込まれました')
+            
+            
         }
         
 
     },[isCameraReady])
 
-    useEffect(()=> {
-        if(isTimecardEndReady === true) {
-            qrCodeScan()
-        }
+    // useEffect ( ()=> {
+    //     if(isTimecardEndReady === true && qrCodeData === ""){
+    //         // setQrCodeData("")
+    //         setQrCodeData("")
+    //         setIsScanned(false)
+            
+    //         qrCodeScan()
+    //         console.log('useEffectにより２度目のQRコードが読み込まれました')
+            
+    //         return;
+    //     } else {
+    //         // setQrCodeData("")
+    //         // setQrReadCount(qrReadCount + 1);
+    //         return
+    //     }
+        
 
-    },[isTimecardEndReady])
+    // },[isTimecardEndReady === true])
 
     useEffect(()=> {
-        if(endTImeScan === true){
+        if(workingState === true){
+
             timeCardEnd()
         }
-    },[endTImeScan])
+        
+    },[endTimeScan === true])
 
+    // useEffect(() => {
+    //     if(canvasRef.current){
+    //         canvasRef.current.willReadFrequently = true
+    //     }
+    // },[canvasRef])
 
+    
 
     
 
