@@ -124,6 +124,8 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
     const [nextQrCodeData, setNextQrCodeData] = useState("")
     const [sample, setSample] = useState("")
 
+    const [workerName, setWorkerName] = useState("")
+
     // type QRCode = any
     
     // const turnOnCamera = async () => {
@@ -181,10 +183,15 @@ const App:React.FC<AppProps> =  ({currentUser},props:onScanModalProps) => {
                 cache:'no-store',
             }) 
             
-            const usersData:User = await response.json();
+            const usersData = await response.json();
 
-        
-            // console.log(usersData)
+            // console.log(usersData[0].name)
+            if(usersData) {
+                // console.log(usersData[0].name)
+                setWorkerName(usersData[0].name)
+            }
+            
+            
             return usersData
         }
         fetchUsers()
@@ -1163,6 +1170,9 @@ const handleWorkEnd = async () => {
     }
 
 
+
+    
+
     // useEffect(() => {
     //     if(isCameraOn && qrCodeData === "" && cameraOn && !workingState){
     //         handleWorkingStart()
@@ -1235,6 +1245,8 @@ const handleWorkEnd = async () => {
     //     }
     // },[canvasRef])
 
+
+
     
 
     
@@ -1288,9 +1300,14 @@ const handleWorkEnd = async () => {
                 <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >状態</div>
                 <div className='  border-2 border-slate-50 rounded-lg px-5 pt-3'>計測値</div>
                 <div className=' border-2 border-black text-slate-50 rounded-lg px-5 pt-3'  >合計時間</div>
-
+                
                 
             </div> */}
+                <div className=' flex mt-[20px] text-2xl font-bold' >
+
+                <div className=' text-4xl text-pink-600'>{workerName}さん</div>
+                <p className=' text-md pt-2'>のタイムカード</p>
+                </div>
                 <div className=' border-2 border-blue-600 w-[1000px] h-auto p-5'>
 
                     <div>その日の合計時間を表示させるために一覧表示させてみる</div>
